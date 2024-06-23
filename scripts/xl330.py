@@ -151,7 +151,7 @@ class XL330:
             dxl_comm_result = self.groupSyncWrite_pos.txPacket()
             if dxl_comm_result != COMM_SUCCESS:
                 print(self.packetHandler.getTxRxResult(dxl_comm_result))
-        time.sleep(time_sleep)
+        if(time_sleep > 0): time.sleep(time_sleep)
 
     def __del__(self):
         # Clear syncwrite parameter storage

@@ -5,8 +5,10 @@ from xl330 import XL330
 import copy
 
 class TDCR_model:
-    def __init__(self, calibrated_step, wire_sign, wirepos_arr, coupled_arr, r_pulley=8, r_wirepos=8, kappa_limit=np.pi/6):
-        self.calibrated_step = calibrated_step
+    def __init__(self, motor_id, wire_sign, wirepos_arr, coupled_arr, r_pulley=8, r_wirepos=8, kappa_limit=np.pi/6):
+        self.Xl330 = XL330(motor_id)
+        self.Xl330.rxposition()
+        self.calibrated_step = copy.copy(self.Xl330.position_pre)
         self.wire_sign = wire_sign
         self.wirepos_arr = wirepos_arr
         self.coupled_arr = coupled_arr
@@ -26,19 +28,44 @@ class TDCR_model:
         l_diff = self.wire_sign[id] * np.sum(self.coupled_arr[section]) * theta_kappa_rad * self.r_wirepos * np.cos(self.wirepos_arr[id]-phai_kappa_rad)
         step = l_diff/self.r_pulley * 180/np.pi * 4096/360
         return int(np.round(self.calibrated_step[id]+step, decimals=0))
+    
+    def current(self, current, time_sleep=0):
+        self.Xl330.setmode(Xl330.CURRENT_MODE)
+        self.Xl330.rxposition()
+        self.Xl330.setcurrent(current)
+        self.Xl330.tx(time_sleep)
+
+    def current_bulk(self, current=0, time_sleep=0):
+        self.current(current*len(self.Xl330.ID_list), time_sleep)
+
+    def get_current_pos(self):
+        self.Xl330.setmode(self.Xl330.EXTENDEDPOSITION_MODE)
+        self.Xl330.rxposition()
+        self.position = copy.copy(self.Xl330.position_pre)
+        print(f"'self.position' is : {self.position}")
+
 
 
 if __name__ == "__main__":
+    # test
+    # manipulator param
+    ## モータ側から見たとき（根本ｰ>先端の視点で）右をx，上をy
+    wirepos_arr = [3/2*np.pi, 1/6*np.pi, 5/6*np.pi,
+                   7/6*np.pi, 1/2*np.pi, 11/6*np.pi,
+                   7/6*np.pi, 11/6*np.pi, 1/2*np.pi]
+    ## セクションは根本からナンバリング
+    coupled_arr = [[0,0,0,1,1,1,0,0,0],
+                   [1,1,1,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,1,1,1]]
+    ## 締め付け向きの符号
+    wire_sign = [1,1,1, 1,1,1, 1,1,1]
+    Model = TDCR_model(range(1,10), wire_sign, wirepos_arr, coupled_arr)
     Xl330 = XL330(range(1,10))
     
-    if(0):
-        Xl330.setmode(Xl330.CURRENT_MODE)
-        Xl330.rxposition()
-        Xl330.setcurrent([30]*9)
-        Xl330.tx(1.5)
-        
-        time.sleep(1.5)
+    # 電流
+    if(0): 
 
+    # 位置読み取り
     Xl330.setmode(Xl330.EXTENDEDPOSITION_MODE)
     Xl330.rxposition()
     print(f"start position is : {Xl330.position_pre}")
@@ -49,21 +76,8 @@ if __name__ == "__main__":
     # calibrated_stp = [614, 1847, 2191, 3015, 1269,
     #                   538, 1741, 41, 1274]
     calibrated_stp = copy.copy(Xl330.position_pre)
-    ## 締め付け向きの符号
-    wire_sign = [1,1,1, 1,1,1, 1,1,1]
     
-    # manipulator param
-    ## モータ側から見たとき（根本ｰ>先端の視点で）右をx，上をy
-    wirepos_arr = [3/2*np.pi, 1/6*np.pi, 5/6*np.pi,
-                   7/6*np.pi, 1/2*np.pi, 11/6*np.pi,
-                   7/6*np.pi, 11/6*np.pi, 1/2*np.pi]
-    ## セクションは根本からナンバリング
-    coupled_arr = [[0,0,0,1,1,1,0,0,0],
-                   [1,1,1,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,1,1,1]]
 
-    # test
-    Model = TDCR_model(calibrated_stp, wire_sign, wirepos_arr, coupled_arr)
     # 所望曲率
     phai = np.repeat([np.pi, 0, 0], 3)
     theta = np.repeat([np.pi/6], 9)
@@ -78,6 +92,7 @@ if __name__ == "__main__":
     print(now_step)
     print(goal_step)
 
+    # Ex位置
     if(0):
         time_length = 3
         increment = 100
@@ -89,6 +104,7 @@ if __name__ == "__main__":
             Xl330.setposition(input)
             Xl330.tx(time_length/increment)
         
+    # 電流
     if(0):
         time.sleep(1)
         
@@ -97,6 +113,7 @@ if __name__ == "__main__":
         Xl330.setcurrent([30]*9)
         Xl330.tx(1.5)
     
+    # 初期位置
     if(0):
         Xl330.setmode(Xl330.EXTENDEDPOSITION_MODE)
         Xl330.rxposition()
