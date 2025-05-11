@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dynamixel_control</name>
+  <version>0.0.0</version>
+  <description>multi‑XL330 control node</description>
+
+  <maintainer email="you@example.com">Your Name</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <!-- 追加した依存 -->
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>dynamixel_sdk</build_depend>
+
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>dynamixel_sdk</exec_depend>
+
+  <!-- catkin_package() に export しているなら -->
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>dynamixel_sdk</build_export_depend>
+
+  <export>
+    <!-- 何もなければ空でも可 -->
+  </export>
+</package>

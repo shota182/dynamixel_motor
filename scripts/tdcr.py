@@ -50,52 +50,67 @@ if __name__ == "__main__":
     #                   538, 1741, 41, 1274]
     calibrated_stp = copy.copy(Xl330.position_pre)
     ## 締め付け向きの符号
-    wire_sign = [1,1,1, 1,1,1, 1,1,1]
+    wire_sign = [1,-1,1, 1,1,1, 1,1,1]
     
     # manipulator param
     ## モータ側から見たとき（根本ｰ>先端の視点で）右をx，上をy
-    wirepos_arr = [3/2*np.pi, 1/6*np.pi, 5/6*np.pi,
-                   7/6*np.pi, 1/2*np.pi, 11/6*np.pi,
-                   7/6*np.pi, 11/6*np.pi, 1/2*np.pi]
+    wirepos_arr = [1/6*np.pi, 5/6*np.pi, 3/2*np.pi,
+                   1/6*np.pi, 3/2*np.pi, 11/6*np.pi,
+                   1/6*np.pi, 3/2*np.pi, 1/2*np.pi]
     ## セクションは根本からナンバリング
-    coupled_arr = [[0,0,0,1,1,1,0,0,0],
-                   [1,1,1,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,1,1,1]]
+    coupled_arr = [[1,1,1,1,1,1,1,1,1],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0]]
 
     # test
     Model = TDCR_model(calibrated_stp, wire_sign, wirepos_arr, coupled_arr)
     # 所望曲率
-    phai = np.repeat([np.pi, 0, 0], 3)
-    theta = np.repeat([np.pi/6], 9)
+    input_arr = [[1/9*np.pi,1/6*np.pi,1/6*np.pi]]
+    # phai = np.repeat(1/2*np.pi, 9)
+    phai = np.repeat(1/2*np.pi, 9)
+    # print(f"phai: \n{phai}")
+    theta = np.repeat(input_arr, 3).reshape((-1,9))
     # phai, theta = -1/2*np.pi, np.pi/6
     section = np.repeat([0,1,2], 3) # 0スタート
     goal_step = []
-    for id in range(1,10):
-        stp = Model.kappa2step(phai[id-1], theta[id-1], section[id-1], id)
-        goal_step.append(stp)
-        print(f"id:{id} is {calibrated_stp[id-1]} to {stp}")
-    now_step = calibrated_stp
-    print(now_step)
-    print(goal_step)
+    for t in range(len(theta)):
+        # print(f"t: {t}")
+        g = []
+        # print(f"g: {g}")
+        for id in range(1,10):
+            stp = Model.kappa2step(phai[id-1], theta[t][id-1], section[id-1], id)
+            g.append(stp)
+            print(f"id:{id} is {calibrated_stp[id-1]} to {stp}")
+        goal_step.append(g)
+        now_step = calibrated_stp
+    print(f"now_step: \n{now_step}")
+    print(f"goal_step: \n{goal_step}")
 
-    if(0):
-        time_length = 3
-        increment = 100
-        for t in np.linspace(0, time_length, increment):
-            goal = np.round(np.array(now_step) + t/time_length * (np.array(goal_step)-np.array(now_step)), decimals=0)
-            # input = np.concatenate([np.array(sublist) for sublist in [calibrated_stp[:6], [int(g) for g in goal]]])
-            input = [int(g) for g in goal]
-            print(input)
-            Xl330.setposition(input)
-            Xl330.tx(time_length/increment)
+    if(1):
+        try:
+            for no in range(200):
+                step = no%len(goal_step)
+                time_length = 2
+                increment = 10
+                for t in np.linspace(0, time_length, increment):
+                    goal = np.round(np.array(now_step) + t/time_length * (np.array(goal_step[step])-np.array(now_step)), decimals=0)
+                    # input = np.concatenate([np.array(sublist) for sublist in [calibrated_stp[:6], [int(g) for g in goal]]])
+                    input = [int(g) for g in goal]
+                    print(input)
+                    Xl330.setposition(input)
+                    Xl330.tx(time_length/increment)
+                now_step = goal_step[step]
+        except KeyboardInterrupt:
+            pass
         
-    if(0):
+    if(1):
         time.sleep(1)
         
         Xl330.setmode(Xl330.CURRENT_MODE)
         Xl330.rxposition()
-        Xl330.setcurrent([30]*9)
+        Xl330.setcurrent(np.tile([30,-30,30],3))
         Xl330.tx(1.5)
+
     
     if(0):
         Xl330.setmode(Xl330.EXTENDEDPOSITION_MODE)
