@@ -1,0 +1,394 @@
+1 low (cmd[0] = 2236)
+
+[ INFO] [1746987769.818741456]: master2 good: (cmd[2] = -17916)
+
+[ INFO] [1746987769.878711287]: master1 good: (cmd[0] = 2240)
+
+[ INFO] [1746987769.898697417]: slave 2 is good (cmd[3] = 5768)
+
+[ INFO] [1746987770.278670630]: master2 low (cmd[2] = -17907)
+
+[ INFO] [1746987770.478662320]: slave 1 is low (cmd[1] = -48892)
+
+[ INFO] [1746987770.478722134]: slave 2 is low (cmd[3] = 5778)
+
+[ INFO] [1746987770.838758072]: master2 good: (cmd[2] = -17898)
+
+[ INFO] [1746987770.878711258]: master1 good: (cmd[0] = 2237)
+
+[ INFO] [1746987770.918569420]: slave 2 is good (cmd[3] = 5787)
+
+[ INFO] [1746987771.378674356]: master2 low (cmd[2] = -17883)
+
+[ INFO] [1746987771.778582092]: slave 1 is low (cmd[1] = -48884)
+
+[ INFO] [1746987771.858652065]: master2 good: (cmd[2] = -17881)
+
+[ INFO] [1746987771.898509080]: master1 good: (cmd[0] = 2236)
+
+[ INFO] [1746987771.938542845]: slave 2 is good (cmd[3] = 5805)
+
+[ INFO] [1746987772.378809742]: master2 low (cmd[2] = -17819)
+
+[ INFO] [1746987772.858653032]: master2 good: (cmd[2] = -17831)
+
+[ INFO] [1746987772.898616334]: master1 good: (cmd[0] = 2235)
+
+[ INFO] [1746987772.938656795]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987773.878708841]: master2 good: (cmd[2] = -17832)
+
+[ INFO] [1746987773.918590987]: master1 good: (cmd[0] = 2236)
+
+[ INFO] [1746987773.958732842]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987774.898686269]: master2 good: (cmd[2] = -17831)
+
+[ INFO] [1746987774.938462257]: master1 good: (cmd[0] = 2237)
+
+[ INFO] [1746987774.978522526]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987775.918675050]: master2 good: (cmd[2] = -17831)
+
+[ INFO] [1746987775.938621406]: master1 good: (cmd[0] = 2236)
+
+[ INFO] [1746987775.978645732]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987776.878717802]: slave 2 is low (cmd[3] = 5907)
+
+[ INFO] [1746987776.938579099]: master2 good: (cmd[2] = -17831)
+
+[ INFO] [1746987776.958677233]: master1 good: (cmd[0] = 2245)
+
+[ INFO] [1746987776.978686493]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987777.958483021]: master2 good: (cmd[2] = -17830)
+
+[ INFO] [1746987777.978526519]: master1 good: (cmd[0] = 2238)
+
+[ INFO] [1746987777.998491844]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987778.378602169]: slave 1 is low (cmd[1] = -48880)
+
+[ INFO] [1746987778.958654839]: master2 good: (cmd[2] = -17829)
+
+[ INFO] [1746987778.978576680]: master1 good: (cmd[0] = 2237)
+
+[ INFO] [1746987778.998541483]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987779.978645912]: master1 good: (cmd[0] = 2238)
+
+[ INFO] [1746987779.978772099]: master2 good: (cmd[2] = -17830)
+
+[ INFO] [1746987779.998700665]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987780.078598873]: master2 low (cmd[2] = -17823)
+
+[ INFO] [1746987780.998595932]: master1 good: (cmd[0] = 2238)
+
+[ INFO] [1746987780.998642767]: master2 good: (cmd[2] = -17831)
+
+[ INFO] [1746987781.018610330]: slave 2 is good (cmd[3] = 5852)
+
+[ INFO] [1746987781.478622222]: slave 2 is low (cmd[3] = 5862)
+
+[ INFO] [1746987781.578738606]: master2 low (cmd[2] = -17813)
+
+[ INFO] [1746987781.998696820]: master1 good: (cmd[0] = 2236)
+
+[ INFO] [1746987781.998803530]: master2 good: (cmd[2] = -17801)
+
+[ INFO] [1746987782.018692779]: slave 2 is good (cmd[3] = 5880)
+
+[ INFO] [1746987782.278746792]: master1 low (cmd[0] = 2225)
+
+[ INFO] [1746987782.678713911]: slave 1 is low (cmd[1] = -48880)
+
+[ INFO] [1746987782.998738696]: master1 good: (cmd[0] = 2226)
+
+[ INFO] [1746987782.998817730]: master2 good: (cmd[2] = -17803)
+
+[ INFO] [1746987783.018747730]: slave 2 is good (cmd[3] = 5881)
+
+[ INFO] [1746987783.078702662]: master2 low (cmd[2] = -17794)
+
+[ INFO] [1746987784.018649154]: master1 good: (cmd[0] = 2215)
+
+[ INFO] [1746987784.018717912]: master2 good: (cmd[2] = -17777)
+
+[ INFO] [1746987784.038814539]: slave 2 is good (cmd[3] = 5904)
+
+[ INFO] [1746987784.678656334]: master2 low (cmd[2] = -17746)
+
+[ INFO] [1746987785.018705570]: master1 good: (cmd[0] = 2214)
+
+[ INFO] [1746987785.018811055]: master2 good: (cmd[2] = -17757)
+
+[ INFO] [1746987785.058740862]: slave 2 is good (cmd[3] = 5923)
+
+[ INFO] [1746987786.038643167]: master1 good: (cmd[0] = 2213)
+
+[ INFO] [1746987786.038710434]: master2 good: (cmd[2] = -17756)
+
+[ INFO] [1746987786.078648412]: slave 2 is good (cmd[3] = 5923)
+
+[ INFO] [1746987787.038662851]: master1 good: (cmd[0] = 2215)
+
+[ INFO] [1746987787.038733443]: master2 good: (cmd[2] = -17756)
+
+[ INFO] [1746987787.078765537]: slave 2 is good (cmd[3] = 5924)
+
+[ INFO] [1746987787.578686508]: master2 low (cmd[2] = -17711)
+
+[ INFO] [1746987788.038696624]: master1 good: (cmd[0] = 2212)
+
+[ INFO] [1746987788.038790222]: master2 good: (cmd[2] = -17726)
+
+[ INFO] [1746987788.098689018]: slave 2 is good (cmd[3] = 5955)
+
+[ INFO] [1746987789.058564065]: master1 good: (cmd[0] = 2212)
+
+[ INFO] [1746987789.058634336]: master2 good: (cmd[2] = -17716)
+
+[ INFO] [1746987789.118669477]: slave 2 is good (cmd[3] = 5964)
+
+[ INFO] [1746987790.078458130]: master1 good: (cmd[0] = 2214)
+
+[ INFO] [1746987790.078526829]: master2 good: (cmd[2] = -17717)
+
+[ INFO] [1746987790.138641019]: slave 2 is good (cmd[3] = 5964)
+
+[ INFO] [1746987790.778653167]: master2 low (cmd[2] = -17701)
+
+[ INFO] [1746987791.078613524]: master1 good: (cmd[0] = 2211)
+
+[ INFO] [1746987791.078698573]: master2 good: (cmd[2] = -17707)
+
+[ INFO] [1746987791.138705380]: slave 2 is good (cmd[3] = 5974)
+
+[ INFO] [1746987792.078615672]: master1 low (cmd[0] = 2186)
+
+[ INFO] [1746987792.078709593]: master2 good: (cmd[2] = -17705)
+
+[ INFO] [1746987792.158540030]: slave 2 is good (cmd[3] = 5975)
+
+[ INFO] [1746987793.078654558]: master1 low (cmd[0] = 1896)
+
+[ INFO] [1746987793.078719141]: master2 good: (cmd[2] = -17696)
+
+[ INFO] [1746987793.158774100]: slave 2 is good (cmd[3] = 5975)
+
+[ INFO] [1746987794.098658972]: master1 low (cmd[0] = 1571)
+
+[ INFO] [1746987794.098767628]: master2 good: (cmd[2] = -17664)
+
+[ INFO] [1746987794.178538556]: slave 2 is good (cmd[3] = 5989)
+
+[ INFO] [1746987795.118682940]: master1 low (cmd[0] = 1225)
+
+[ INFO] [1746987795.118760745]: master2 good: (cmd[2] = -17562)
+
+[ INFO] [1746987795.178660983]: slave 2 is good (cmd[3] = 6085)
+
+[ INFO] [1746987796.138622839]: master1 low (cmd[0] = 965)
+
+[ INFO] [1746987796.138715092]: master2 good: (cmd[2] = -17412)
+
+[ INFO] [1746987796.198625599]: slave 2 is good (cmd[3] = 6232)
+
+[ INFO] [1746987796.478608859]: master1 good: (cmd[0] = 937)
+
+[ INFO] [1746987797.158654985]: master2 good: (cmd[2] = -17223)
+
+[ INFO] [1746987797.178587038]: master1 low (cmd[0] = 895)
+
+[ INFO] [1746987797.198675679]: slave 2 is good (cmd[3] = 6408)
+
+[ INFO] [1746987797.578686485]: master1 good: (cmd[0] = 857)
+
+[ INFO] [1746987798.158830754]: master2 good: (cmd[2] = -17023)
+
+[ INFO] [1746987798.178691856]: master1 low (cmd[0] = 805)
+
+[ INFO] [1746987798.198815528]: slave 2 is good (cmd[3] = 6605)
+
+[ INFO] [1746987799.178731604]: master1 low (cmd[0] = 718)
+
+[ INFO] [1746987799.178833393]: master2 good: (cmd[2] = -16779)
+
+[ INFO] [1746987799.218809591]: slave 2 is good (cmd[3] = 6840)
+
+[ INFO] [1746987799.278617738]: master1 good: (cmd[0] = 697)
+
+[ INFO] [1746987800.198724591]: master2 good: (cmd[2] = -16524)
+
+[ INFO] [1746987800.238664009]: slave 2 is good (cmd[3] = 7086)
+
+[ INFO] [1746987800.278617847]: master1 good: (cmd[0] = 576)
+
+[ INFO] [1746987801.078612059]: master2 high (cmd[2] = -16575)
+
+[ INFO] [1746987801.218612948]: master2 good: (cmd[2] = -16396)
+
+[ INFO] [1746987801.258588631]: slave 2 is good (cmd[3] = 7147)
+
+[ INFO] [1746987801.278655030]: master1 good: (cmd[0] = 397)
+
+[ INFO] [1746987802.078720714]: master2 high (cmd[2] = -16275)
+
+[ INFO] [1746987802.218689876]: master2 good: (cmd[2] = -16165)
+
+[ INFO] [1746987802.258634482]: slave 2 is good (cmd[3] = 7415)
+
+[ INFO] [1746987802.298753150]: master1 good: (cmd[0] = 213)
+
+[ INFO] [1746987803.218724926]: master2 good: (cmd[2] = -16087)
+
+[ INFO] [1746987803.258732998]: slave 2 is good (cmd[3] = 7502)
+
+[ INFO] [1746987803.278778883]: master2 high (cmd[2] = -16210)
+
+[ INFO] [1746987803.318611017]: master1 good: (cmd[0] = 8)
+
+[ INFO] [1746987804.238650800]: master2 good: (cmd[2] = -16000)
+
+[ INFO] [1746987804.278733395]: slave 2 is good (cmd[3] = 7567)
+
+[ INFO] [1746987804.278835248]: master2 high (cmd[2] = -16213)
+
+[ INFO] [1746987804.318664045]: master1 good: (cmd[0] = -189)
+
+[ INFO] [1746987805.258730008]: master2 good: (cmd[2] = -15969)
+
+[ INFO] [1746987805.298705225]: slave 2 is good (cmd[3] = 7596)
+
+[ INFO] [1746987805.298791051]: master2 high (cmd[2] = -16184)
+
+[ INFO] [1746987805.338630553]: master1 good: (cmd[0] = -381)
+
+[ INFO] [1746987806.278708819]: master2 good: (cmd[2] = -15643)
+
+[ INFO] [1746987806.298824659]: slave 2 is good (cmd[3] = 7918)
+
+[ INFO] [1746987806.338925668]: master1 good: (cmd[0] = -574)
+
+[ INFO] [1746987806.578697574]: master1 high (cmd[0] = -510)
+
+[ INFO] [1746987807.298688985]: master2 good: (cmd[2] = -15109)
+
+[ INFO] [1746987807.318733684]: slave 2 is good (cmd[3] = 8471)
+
+[ INFO] [1746987807.358586797]: master1 good: (cmd[0] = -554)
+
+[ INFO] [1746987807.598702972]: master1 high (cmd[0] = -413)
+
+[ INFO] [1746987808.318655866]: master2 good: (cmd[2] = -14616)
+
+[ INFO] [1746987808.338675813]: slave 2 is good (cmd[3] = 8946)
+
+[ INFO] [1746987808.478675494]: master1 good: (cmd[0] = -431)
+
+[ INFO] [1746987808.618668115]: master1 high (cmd[0] = -242)
+
+[ INFO] [1746987808.678704917]: master2 high (cmd[2] = -14592)
+
+[ INFO] [1746987809.338690256]: slave 2 is good (cmd[3] = 9178)
+
+[ INFO] [1746987809.338763472]: master2 good: (cmd[2] = -14375)
+
+[ INFO] [1746987809.498723845]: master1 good: (cmd[0] = -369)
+
+[ INFO] [1746987809.618645933]: master1 high (cmd[0] = -263)
+
+[ INFO] [1746987809.878703119]: master2 high (cmd[2] = -14515)
+
+[ INFO] [1746987810.358606931]: slave 2 is good (cmd[3] = 9233)
+
+[ INFO] [1746987810.378529000]: master2 good: (cmd[2] = -14318)
+
+[ INFO] [1746987810.518474082]: master1 good: (cmd[0] = -416)
+
+[ INFO] [1746987810.638743882]: master1 high (cmd[0] = -269)
+
+[ INFO] [1746987810.878747205]: master2 high (cmd[2] = -14441)
+
+[ INFO] [1746987811.358688983]: slave 2 is good (cmd[3] = 9357)
+
+[ INFO] [1746987811.378644622]: master2 good: (cmd[2] = -14236)
+
+[ INFO] [1746987811.518710664]: master1 good: (cmd[0] = -445)
+
+[ INFO] [1746987811.898766422]: master2 high (cmd[2] = -14482)
+
+[ INFO] [1746987812.358773789]: slave 2 is good (cmd[3] = 9263)
+
+[ INFO] [1746987812.378653086]: master1 high (cmd[0] = -581)
+
+[ INFO] [1746987812.478676435]: master2 good: (cmd[2] = -14341)
+
+[ INFO] [1746987812.578712879]: master1 good: (cmd[0] = -673)
+
+[ INFO] [1746987813.378730847]: slave 2 is good (cmd[3] = 9460)
+
+[ INFO] [1746987813.378824501]: master1 high (cmd[0] = 49)
+
+[ INFO] [1746987813.498653629]: master2 good: (cmd[2] = -14049)
+
+[ INFO] [1746987813.598620549]: master1 good: (cmd[0] = -116)
+
+[ INFO] [1746987814.398792430]: slave 2 is good (cmd[3] = 9934)
+
+[ INFO] [1746987814.398895023]: master1 high (cmd[0] = 192)
+
+[ INFO] [1746987814.498649444]: master2 good: (cmd[2] = -13573)
+
+[ INFO] [1746987814.778578120]: master1 good: (cmd[0] = 210)
+
+[ INFO] [1746987815.418618668]: slave 2 is good (cmd[3] = 10390)
+
+[ INFO] [1746987815.418729926]: master1 high (cmd[0] = 586)
+
+[ INFO] [1746987815.518696252]: master2 good: (cmd[2] = -13143)
+
+[ INFO] [1746987816.438716816]: slave 2 is good (cmd[3] = 10785)
+
+[ INFO] [1746987816.438855566]: master1 high (cmd[0] = 806)
+
+[ INFO] [1746987816.538592163]: master2 good: (cmd[2] = -12744)
+
+[ INFO] [1746987816.878657679]: master2 high (cmd[2] = -12748)
+
+[ INFO] [1746987817.078438542]: master1 good: (cmd[0] = 792)
+
+[ INFO] [1746987817.458567650]: slave 2 is good (cmd[3] = 10999)
+
+[ INFO] [1746987817.458651721]: master1 high (cmd[0] = 949)
+
+[ INFO] [1746987817.578647185]: master2 good: (cmd[2] = -12538)
+
+[ INFO] [1746987818.078689649]: master1 good: (cmd[0] = 869)
+
+[ INFO] [1746987818.078775532]: master2 high (cmd[2] = -12602)
+
+[ INFO] [1746987818.458755838]: slave 2 is good (cmd[3] = 11132)
+
+[ INFO] [1746987818.478615494]: master1 high (cmd[0] = 1037)
+
+[ INFO] [1746987818.578796121]: master2 good: (cmd[2] = -12420)
+
+[ INFO] [1746987819.098556156]: master1 good: (cmd[0] = 910)
+
+[ INFO] [1746987819.278603479]: master2 high (cmd[2] = -12539)
+
+[ INFO] [1746987819.478638096]: slave 2 is good (cmd[3] = 11198)
+
+[ INFO] [1746987819.478703622]: master1 high (cmd[0] = 1103)
+
+[ INFO] [1746987819.778628343]: master2 good: (cmd[2] = -12363)
+
+^C[ INFO] [1746987820.098661672]: master1 good: (cmd[0] = 964)
+
+[bilateral_2d_node-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+done

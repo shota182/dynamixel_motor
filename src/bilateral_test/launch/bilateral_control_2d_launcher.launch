@@ -1,5 +1,4 @@
 <launch>
-
   <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
   <arg name="baud"          default="57600"          />
   <arg name="motor_count"   default="4"              />
@@ -9,9 +8,14 @@
   <arg name="pos_topic"     default="/sensor/motor/output/position"   />
   <arg name="cur_topic"     default="/sensor/motor/output/current"    />
 
-  <!-- ノード本体 -->
-  <node pkg="dynamixel_control" type="multi_pos_ctrl_node"
-        name="multi_pos_ctrl_node" output="screen">
+  <!-- arduino -->
+  <node pkg="rosserial_python" type="serial_node.py" name="arduino_serial_node" output="screen">
+    <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00" />
+    <param name="baud" value="115200" />
+  </node>
+
+  <!-- dynamixel -->
+  <node pkg="dynamixel_control" type="multi_pos_ctrl_node" name="multi_pos_ctrl_node" output="screen">
     <param name="device_name"  value="$(arg device)"        />
     <param name="baud_rate"    value="$(arg baud)"          />
     <param name="motor_count"  value="$(arg motor_count)"   />
@@ -21,4 +25,8 @@
     <remap from="/present_currents"    to="$(arg cur_topic)"  />
   </node>
 
+  <!-- bilateral_control -->
+  <node pkg="bilateral_test" type="bilateral_2d_node" name="bilateral_2d_node" output="screen">
+    <rosparam file="$(find bilateral_test)/config/params_2d.yaml" command="load" />
+  </node>
 </launch>

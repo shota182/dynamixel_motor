@@ -1,0 +1,10 @@
+<launch>
+  <!-- joyノード -->
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen"/>
+
+  <!-- 自作ノード -->
+  <node pkg="joy_to_dynamixel" type="joy_to_extended_position_node"
+        name="joy_to_extended_position" output="screen">
+    <rosparam file="$(find joy_to_dynamixel)/config/params.yaml" command="load"/>
+  </node>
+</launch>

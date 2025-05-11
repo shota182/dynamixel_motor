@@ -1,0 +1,9 @@
+tension_threshold: 100
+pull_value_gain: 5
+Kp: 10.0
+Kf: 1.0
+Kd: 5.0
+index_master: 0
+index_slave: 2
+tension_margin: 30
+avg_count: 5

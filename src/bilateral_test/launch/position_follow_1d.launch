@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="bilateral_test" type="position_follow_1d_node" name="position_follow_1d_node" output="screen">
+    <rosparam file="$(find bilateral_test)/config/params_1d.yaml" command="load" />
+  </node>
+</launch>
