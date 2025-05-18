@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
+#include <std_msgs/String.h>
 #include <std_msgs/Int32MultiArray.h>
 
 class JoyToExtendedPosition
@@ -25,6 +26,9 @@ public:
 
     // --- Publisher ---
     pub_goal_ = nh_.advertise<std_msgs::Int32MultiArray>("/sensor/motor/input/position", 10);
+
+    // A button
+    pub_button_ = nh_.advertise<std_msgs::String>("/joy/button_pressed", 1);
 
     timer_ = nh_.createTimer(ros::Duration(1.0 / control_freq_),
                              &JoyToExtendedPosition::timerCB, this);
@@ -54,6 +58,21 @@ private:
       int axis = axis_indices_[i];
       if (msg->axes.size() > axis)
         input_values_[i] = msg->axes[axis];
+    }
+
+    // ボタン data[2] 押下検出（エッジ検出）
+    if (msg->buttons.size() > 2)
+    {
+      bool current_state = msg->buttons[2];
+
+      if (current_state && !last_button_state_)
+      {
+        std_msgs::String out;
+        out.data = "Button 2 pressed!";
+        pub_button_.publish(out);
+      }
+
+      last_button_state_ = current_state;
     }
   }
 
@@ -89,6 +108,10 @@ private:
   double scale_;
   double control_freq_;
   bool initialized_;
+
+  // A button
+  ros::Publisher pub_button_;
+  bool last_button_state_ = false;
 };
 
 int main(int argc, char** argv)

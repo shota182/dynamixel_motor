@@ -140,3 +140,9 @@ joyでモータを動かすためのノード。
 ```motor_count: 2```：動かすモータ数
 
 ```control_freq: 50.0```：制御周波数
+
+### 実行
+
+```
+roslaunch joy_to_dynamixel joy_to_extended_position.launch
+```
