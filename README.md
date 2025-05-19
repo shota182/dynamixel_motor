@@ -1,6 +1,6 @@
 # 2025/5/8
 
-## mag_publisher
+## ```mag_publisher```
 ### 概要
 
 mag_publisherに存在。
@@ -28,7 +28,7 @@ rosrun rosserial_python serial_node.py _port:=/dev/serial/by-id/usb-Arduino__www
 
 ---
 
-## bilateral_test
+## ```bilateral_test```
 ### 概要
 
 追従制御，バイラテラルなど
@@ -80,7 +80,7 @@ roslaunch bilateral_test bilateral_control_2d_launcher.launch
 
 ---
 
-## dynamixel_control
+## ```dynamixel_control```
 ### 概要
 
 position制御でXL330-M288-Tを動かすノード。
@@ -125,7 +125,7 @@ rostopic pub -1 /sensor/motor/input/position std_msgs/Int32MultiArray \
 
 ---
 
-## joy_to_dynamixel
+## ```joy_to_dynamixel```
 
 ### 概要
 
@@ -146,3 +146,11 @@ joyでモータを動かすためのノード。
 ```
 roslaunch joy_to_dynamixel joy_to_extended_position.launch
 ```
+
+## ```mag_calibration```
+
+### 概要
+
+キャリブレーション用パッケージ
+磁気センサ値から張力値を計算するためのノード．
+パラメータを
