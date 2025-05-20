@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="calibration" type="mag_calibration_node" name="mag_calibration_node" output="screen">
+    <rosparam file="$(find calibration)/config/mag_calibration.yaml" command="load" />
+  </node>
+</launch>
