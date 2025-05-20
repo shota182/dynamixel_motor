@@ -26,7 +26,7 @@
   </node>
 
   <!-- bilateral_control -->
-  <node pkg="bilateral_test" type="bilateral_2d_node" name="bilateral_2d_node" output="screen">
+  <node pkg="bilateral_test" type="bilateral_2d_force_node" name="bilateral_2d_force_node" output="screen">
     <rosparam file="$(find bilateral_test)/config/params_2d.yaml" command="load" />
   </node>
 </launch>

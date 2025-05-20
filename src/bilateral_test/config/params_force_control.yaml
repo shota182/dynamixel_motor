@@ -1,0 +1,7 @@
+tension_threshold: 0
+pull_value_gain: 5
+Kp: 1.0
+index_sensor_1: 0
+index_sensor_2: 2
+tension_margin: 250
+avg_count: 5
