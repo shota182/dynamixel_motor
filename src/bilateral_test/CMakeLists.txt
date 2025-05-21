@@ -24,6 +24,9 @@ target_link_libraries(bilateral_2d_node ${catkin_LIBRARIES})
 add_executable(bilateral_2d_force_node src/bilateral_2d_force_node.cpp)
 target_link_libraries(bilateral_2d_force_node ${catkin_LIBRARIES})
 
+add_executable(zero_point_calibration_node src/zero_point_calibration_node.cpp)
+target_link_libraries(zero_point_calibration_node ${catkin_LIBRARIES})
+
 # === 以下を追加 ===
 
 # launch ファイルのインストール
