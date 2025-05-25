@@ -3,13 +3,15 @@ project(calibration)
 
 add_compile_options(-std=c++11)
 
-find_package(catkin REQUIRED)
+
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  std_msgs
+  sensor_msgs
+)
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES calibration
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs
 )
 
 include_directories(
@@ -19,10 +21,11 @@ include_directories(
 
 ## 実行ファイル: 磁気センサキャリブレーションノード
 add_executable(mag_calibration_node src/mag_calibration_node.cpp)
+target_link_libraries(mag_calibration_node ${catkin_LIBRARIES})
 
-target_link_libraries(mag_calibration_node
-  ${catkin_LIBRARIES}
-)
+add_executable(zero_point_calibration_node src/zero_point_calibration_node.cpp)
+target_link_libraries(zero_point_calibration_node ${catkin_LIBRARIES})
+add_dependencies(zero_point_calibration_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## インストール: 実行ファイル
 install(TARGETS mag_calibration_node

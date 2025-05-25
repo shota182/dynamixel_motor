@@ -82,3 +82,11 @@ private:
     }
   }
 };
+
+int main(int argc, char** argv) {
+  ros::init(argc, argv, "mag_calibration_node");
+  ros::NodeHandle nh("~");
+  MagCalibrationNode node(nh);
+  ros::spin();
+  return 0;
+}
