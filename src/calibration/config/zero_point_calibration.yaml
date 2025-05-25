@@ -1,0 +1,9 @@
+calibration_samples: 10            # 磁気センサ値のキャリブレーションに使うサンプル数
+mag_window_size: 5                 # 磁気センサ平均を取るウィンドウサイズ（サンプル数）
+pull_time: 0.3                     # [sec] モータが引く時間
+stop_time: 1.0                     # [sec] 引いた後に停止して待つ時間
+repeat: 3                          # 引くステップを半分にして繰り返す回数
+pull_step_max: 128                # [step] pull_time中に引く最大ステップ数（512で45度など）
+dist_threshold: 5                # 磁気センサの変化検出しきい値
+mag_target_indices: [2, 0]       # 磁気センサのターゲットインデックス
+motor_direction: [-1, 1]          # モータの引く方向（-1: マニピュレータ側、1: モータ側）
