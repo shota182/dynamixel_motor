@@ -40,7 +40,7 @@ private:
 
   std::deque<std_msgs::Int32MultiArray> mag_buffer_;
   // std_msgs::Int32MultiArray;
-  std::vector<int> mag_not_changed_;
+  std::vector<bool> mag_not_changed_;
   int mag_calibration_samples_, mag_window_size_;
   double pull_time_;
   double stop_time_;
@@ -167,15 +167,15 @@ private:
     }
 
     if (mag_not_changed_.size() != current.size()) {
-      mag_not_changed_.resize(current.size(), 1);
+      mag_not_changed_.resize(current.size(), true);
     }
 
     for (size_t i = 0; i < current.size(); ++i) {
       double diff = std::abs(current[i] - initial[i]);
       if (diff > dist_threshold_) {
-        mag_not_changed_[i] = 0;
+        mag_not_changed_[i] = false;
       } else {
-        mag_not_changed_[i] = 1;
+        mag_not_changed_[i] = true;
       }
     }
   }
@@ -187,7 +187,7 @@ private:
       ROS_WARN("Motor position or Mag not initialized yet.");
       return;
     }
-    mag_not_changed_.assign(initial_mag_.mean.size(), 1);
+    mag_not_changed_.assign(initial_mag_.mean.size(), true);
     ros::Time now = ros::Time::now();
     ros::Duration elapsed = now - state_start_time_;
 
@@ -261,7 +261,10 @@ private:
           std_msgs::Int32MultiArray msg;
           msg.data = current_position_.data;
           for (size_t i = 0; i < msg.data.size(); i++) {
-            msg.data[i] = int(pull_start_position_.data[i] + motor_direction_[i] * mag_not_changed_[i] * pull_step_max_ * ((elapsed.toSec()) / pull_time_));
+            if(mag_not_changed_[i]) {
+              // 変化がなかった場合は、pull_start_position_から引く
+              msg.data[i] = int(pull_start_position_.data[i] + motor_direction_[i] * pull_step_max_ * ((elapsed.toSec()) / pull_time_));
+            }
           }
           pub_cmd_.publish(msg);
           break;
@@ -281,6 +284,7 @@ private:
           // すべてfalseならばステップを小さくして再開
           if (std::all_of(mag_not_changed_.begin(), mag_not_changed_.end(), [](bool v) { return v == 0; })) {
             // 変化点を回転前後の間と定義
+            ROS_INFO("Magnetic data did not change significantly, reducing pull step and repeating.");
             // changed_position_ = current_position_;
             size_t n = current_position_.data.size();
             changed_position_.data.resize(n);
