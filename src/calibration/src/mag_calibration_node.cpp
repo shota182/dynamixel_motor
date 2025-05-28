@@ -1,92 +1,188 @@
 #include <ros/ros.h>
-#include <sensor_msgs/MagneticField.h>
+#include <std_msgs/Int32MultiArray.h>
+#include <fstream>
 #include <vector>
 #include <string>
-#include <cmath>
+#include <sstream>
+#include <iostream>
 #include <algorithm>
+#include <deque>
 
-class MagCalibrationNode
-{
+class ZeroPointCalibrationNode {
 public:
-  MagCalibrationNode(ros::NodeHandle& nh)
-    : nh_(nh)
+  ZeroPointCalibrationNode(ros::NodeHandle& nh) : nh_(nh),
+    initialized_mag_(false),
+    initialized_motor_(false)
   {
-    // パラメータ取得
-    nh_.param("sensor_count", sensor_count_, 0);
-    nh_.param("spring_constants", spring_constant_, 1.0);
+    sub_mag_ = nh_.subscribe("/sensor/mag", 1, &ZeroPointCalibrationNode::magCallback, this);
+    sub_pos_ = nh_.subscribe("/sensor/motor/output/position", 1, &ZeroPointCalibrationNode::positionCallback, this);
+    pub_cmd_ = nh_.advertise<std_msgs::Int32MultiArray>("/sensor/motor/input/position", 10);
 
-    nh_.getParam("motor_side_wire_angles", motor_angles_);
-    nh_.getParam("manipulator_side_wire_angles", manipulator_angles_);
-    nh_.getParam("magnet_strength", magnet_strength_);
-    nh_.getParam("magnet_distances", magnet_distances_);
+    nh_.param<std::string>("csv_path", csv_path_, "calibration_table.csv");
+    nh_.param<int>("mag_avg_count", mag_avg_count_, 10);
+    nh_.param<int>("mag_use_index", mag_save_index_, 0);
 
-    if (magnet_strength_.size() != magnet_distances_.size()) {
-      ROS_ERROR("magnet_strength and magnet_distances must be same size");
-      ros::shutdown();
+
+    loadCSV(csv_path_);
+  }
+
+  void spin() {
+    ROS_INFO("spin0");
+    ros::Rate rate(10);
+    while (ros::ok()) {
+      ros::spinOnce();
+      rate.sleep();
+
+      if (initialized_mag_ && initialized_motor_) break;
     }
 
-    if (motor_angles_.size() != (size_t)sensor_count_) {
-      ROS_WARN("motor_side_wire_angles size does not match sensor_count");
+    ROS_INFO("All initializations completed. Starting data collection...");
+
+    std::ofstream ofs("spring_vs_mag.csv");
+    ofs << "spring_displacement";
+    for (size_t i = 0; i < latest_mag_.data.size(); ++i) {
+      ofs << ",mag" << i;
+    }
+    ofs << "\n";
+
+    ros::Rate loop_rate(10);
+    while (ros::ok()) {
+      ros::spinOnce();
+      if (!latest_motor_.data.empty() && !initial_motor_.data.empty()) {
+        // 相対ステップ角（初期値との差）
+        double step = static_cast<double>(latest_motor_.data[0] - initial_motor_.data[0]);
+        double spring_disp = interpolate(step);
+        ofs << spring_disp;
+
+        if (mag_save_index_ >= 0 && mag_save_index_ < static_cast<int>(latest_mag_.data.size())) {
+          ofs << "," << latest_mag_.data[mag_save_index_];
+        } else {
+          ROS_WARN("mag_save_index %d out of range, writing 0.", mag_save_index_);
+          ofs << ",0";
+        }
+        ofs << "\n";
+        ROS_INFO_STREAM("Saved: step=" << step << ", spring=" << spring_disp);
+        break;
+      }
+      loop_rate.sleep();
     }
 
-    // 磁気センサ値購読
-    sub_mag_ = nh_.subscribe("/sensor/mag", 1, &MagCalibrationNode::tensionCallback, this);
-
-    ROS_INFO("MagCalibrationNode initialized.");
+    ROS_INFO("Data saved to spring_vs_mag.csv");
   }
 
 private:
   ros::NodeHandle nh_;
   ros::Subscriber sub_mag_;
+  ros::Subscriber sub_pos_;
+  ros::Publisher pub_cmd_;
 
-  int sensor_count_;
-  double spring_constant_;
-  std::vector<double> motor_angles_;
-  std::vector<double> manipulator_angles_;
-  std::vector<double> magnet_strength_;   // 磁束密度 [mT]
-  std::vector<double> magnet_distances_;  // 距離 [mm]
+  std::string csv_path_;
+  std::vector<double> csv_motor_steps_;
+  std::vector<double> csv_spring_disp_;
 
-  // 線形補間で磁束密度→距離を推定
-  double estimateDistance(double B_measured) {
-    for (size_t i = 1; i < magnet_strength_.size(); ++i) {
-      if (B_measured > magnet_strength_[i]) {
-        double B1 = magnet_strength_[i - 1];
-        double B2 = magnet_strength_[i];
-        double d1 = magnet_distances_[i - 1];
-        double d2 = magnet_distances_[i];
+  std_msgs::Int32MultiArray latest_mag_;
+  std_msgs::Int32MultiArray latest_motor_;
+  std_msgs::Int32MultiArray initial_mag_;
+  std_msgs::Int32MultiArray initial_motor_;
+  std::deque<std_msgs::Int32MultiArray> mag_buffer_;
+  int mag_save_index_;
 
-        double ratio = (B_measured - B2) / (B1 - B2);
-        return d2 + (d1 - d2) * ratio;  // 線形補間
-      }
+  int mag_avg_count_;
+  bool initialized_mag_;
+  bool initialized_motor_;
+
+  void loadCSV(const std::string& filename) {
+    std::ifstream file(filename);
+    std::string line;
+    std::getline(file, line);  // skip header
+
+    while (std::getline(file, line)) {
+      std::stringstream ss(line);
+      std::string step_str, disp_str;
+      std::getline(ss, step_str, ',');
+      std::getline(ss, disp_str, ',');
+
+      csv_motor_steps_.push_back(std::stod(step_str));
+      csv_spring_disp_.push_back(std::stod(disp_str));
     }
-    return magnet_distances_.back(); // 範囲外は最大距離
+
+    ROS_INFO("Loaded CSV with %lu entries.", csv_motor_steps_.size());
   }
 
-  void tensionCallback(const sensor_msgs::MagneticField::ConstPtr& msg)
-  {
-    // 仮に msg->magnetic_field.x 〜 x方向成分を使うと仮定（センサ数に対応づけるには変更必要）
-    double B = msg->magnetic_field.x * 1e3; // [T] → [mT]
+  void positionCallback(const std_msgs::Int32MultiArray::ConstPtr& msg) {
+    latest_motor_ = *msg;
 
-    double distance = estimateDistance(B); // [mm]
-    double deflection = distance / 1000.0; // [m]
-
-    double tension = spring_constant_ * deflection;
-
-    ROS_INFO("B = %.2f mT, distance = %.2f mm, tension = %.4f N", B, distance, tension);
-
-    // ばね方向成分の計算（例：wire角度に対してcos成分）
-    for (size_t i = 0; i < motor_angles_.size(); ++i) {
-      double angle = motor_angles_[i];
-      double axial_tension = tension * std::cos(angle);
-      ROS_INFO("Wire %lu: Axial Tension = %.4f N (angle = %.2f rad)", i, axial_tension, angle);
+    if (!initialized_motor_) {
+      initial_motor_ = *msg;
+      initialized_motor_ = true;
+      ROS_INFO("Motor position initialized.");
     }
+  }
+
+  void magCallback(const std_msgs::Int32MultiArray::ConstPtr& msg) {
+    latest_mag_ = *msg;
+    ROS_DEBUG_STREAM("Received mag data: size = " << msg->data.size());
+
+    if (!initialized_mag_) {
+      if (msg->data.empty()) {
+        ROS_WARN("Received empty mag data. Skipping.");
+        return;
+      }
+
+      mag_buffer_.push_back(*msg);
+      ROS_DEBUG_STREAM("mag_buffer_ size: " << mag_buffer_.size());
+
+      // バッファが溜まったら初期化
+      if (mag_buffer_.size() >= mag_avg_count_) {
+        size_t N = msg->data.size();
+        initial_mag_.data.resize(N, 0);
+
+        for (size_t i = 0; i < N; ++i) {
+          int valid_count = 0;
+          int sum = 0;
+
+          for (size_t j = 0; j < mag_buffer_.size(); ++j) {
+            const auto& m = mag_buffer_[j];
+            if (i < m.data.size()) {
+              sum += m.data[i];
+              valid_count++;
+            } else {
+              ROS_WARN_STREAM("mag_buffer_[" << j << "] has insufficient size: " << m.data.size() << " < " << i + 1);
+            }
+          }
+
+          if (valid_count > 0) {
+            initial_mag_.data[i] = sum / valid_count;
+          } else {
+            ROS_ERROR_STREAM("Index " << i << " had no valid samples. Setting to 0.");
+            initial_mag_.data[i] = 0;
+          }
+        }
+
+        initialized_mag_ = true;
+        ROS_INFO_STREAM("Initial mag computed. Sample count: " << mag_avg_count_ << ", element count: " << initial_mag_.data.size());
+      }
+    }
+  }
+
+
+  double interpolate(double step) {
+    for (size_t i = 0; i < csv_motor_steps_.size() - 1; ++i) {
+      if (step >= csv_motor_steps_[i] && step <= csv_motor_steps_[i + 1]) {
+        double t = (step - csv_motor_steps_[i]) / (csv_motor_steps_[i + 1] - csv_motor_steps_[i]);
+        return csv_spring_disp_[i] + t * (csv_spring_disp_[i + 1] - csv_spring_disp_[i]);
+      }
+    }
+    return 0.0;
   }
 };
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "mag_calibration_node");
-  ros::NodeHandle nh("~");
-  MagCalibrationNode node(nh);
-  ros::spin();
+  ros::NodeHandle nh;
+
+  ZeroPointCalibrationNode node(nh);
+  node.spin();
+
   return 0;
 }
