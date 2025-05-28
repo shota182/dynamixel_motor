@@ -147,21 +147,41 @@ joyでモータを動かすためのノード。
 roslaunch joy_to_dynamixel joy_to_extended_position.launch
 ```
 
-## ```mag_calibration```
+---
 
-### 概要
+## ```calibration```
 
 キャリブレーション用パッケージ
-磁気センサ値から張力値を計算するためのノード．
 
-### パラメータ
+### ```zero_point_calibration_node.cpp```
+
+張力の0点合わせをするためのノード．
+
+#### 実行
+
+```roslaunch calibration zero_point_calibration.launch```
+
+#### パラメータ
+
+```zero_point_calibration.yaml```に記載
+
+### ```step-angle2spring-dist.py```
+
+モータステップ角の変化とばね変位の関係を計算するpythonファイル．
+オフラインで計算して，csvに関係を格納する．
+
+#### 実行
+
+```python3 step-angle2spring-dist.py```
+
+### ```mag_calibration_node.cpp```
+
+磁気センサのキャリブレーションをするためのノード．
+ばね変位ー＞磁気センサ値をcsvに格納して，磁気センサ値の変化からばね変位を計算する．
+
+#### 実行
+
+```roslaunch calibration mag_calibration.launch```
+
+#### パラメータ
 ```mag_calibration.yaml```に記載
-
-### 詳細
-
-ワイヤ角度とモータのパラメータから張力のばね方向成分を計算。
-ばね定数と組み合わせて張力とたわみの計算式を立てる(直線)。
-
-磁気センサの初期値を計測して、磁石との距離から張力と磁気センサ値の計算式を立てる(曲線)。
-
-作成したのは良いが，距離と磁気センサ出力が同期している感じがしたので使わなくても良いかな．
