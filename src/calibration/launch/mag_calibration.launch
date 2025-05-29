@@ -26,9 +26,8 @@
   </node>
 
   <!-- mag calibration -->
-
     <node name="mag_calibration_node" pkg="calibration" type="mag_calibration_node" output="screen">
-      <param name="csv_path" value="/home/sskr3/acm_ws/src/calibration/scripts/data_20250528_205340.csv"/>
+      <param name="csv_path" value="$(find calibration)/scripts/data_20250528_205340.csv" />
       <param name="mag_avg_count" value="10"/>
       <param name="mag_save_index" value="2"/>
     </node>
