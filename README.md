@@ -153,6 +153,27 @@ roslaunch joy_to_dynamixel joy_to_extended_position.launch
 
 キャリブレーション用パッケージ
 
+### 実行順序
+
+* ```python3 /home/sskr3/acm_ws/src/calibration/scripts/calc_springconstant.py```
+ばね定数を計算してくれる．
+2025/05/30時点のばねは0.67[N/m]．
+
+* 固定端環境を用意して，計測した値を```step-angle2spring-dist.py```に書き込む
+
+* ```python3 /home/sskr3/acm_ws/src/calibration/scripts/step-angle2spring-dist.py```
+csvに```stepangle_vs_springdist_```から始まるcsvファイルが保存される．
+これでモータのステップ角とばねの変位&張力の関係が求まる．
+
+* ```roslaunch calibration zero_point_calibration.launch```
+指定したモータの張力が0になるように0点キャリブレーションしてくれる．
+
+* ```roslaunch calibration mag_calibration.launch```
+ステップ角を走査して，磁気センサ値と張力の関係を```spring_vs_mag_```から始まるcsvに保存する．
+これで磁気センサ値と張力の関係が求まる．
+
+---
+
 ### ```zero_point_calibration_node.cpp```
 
 張力の0点合わせをするためのノード．
@@ -165,6 +186,34 @@ roslaunch joy_to_dynamixel joy_to_extended_position.launch
 
 ```zero_point_calibration.yaml```に記載
 
+### ```mag_calibration_node.cpp```
+
+磁気センサのキャリブレーションをするためのノード．
+```csv/stepangle_vs_springdist_20250530_134950.csv```形式のcsvファイルを読み込む．
+出力は```csv/spring_vs_mag_20250530_133100.csv```形式で行われ，ばね定数，磁気センサ値，張力値が保存される．
+
+#### 実行
+
+```roslaunch calibration mag_calibration.launch```
+
+#### パラメータ
+```mag_calibration.yaml```に記載
+
+---
+
+### ```scripts/calc_springconstant.py```
+
+板バネのパラメータから板バネのばね定数を計算する．
+
+#### 実行
+
+```python3 scripts/calc_springconstant.py```
+
+### ```scripts/plot_tension-mag.py```
+
+張力とばね変位，磁気センサ出力のプロットをする．
+csvは```csv/spring_vs_mag_20250530_133100.csv```形式を選択する．
+
 ### ```step-angle2spring-dist.py```
 
 モータステップ角の変化とばね変位の関係を計算するpythonファイル．
@@ -173,15 +222,3 @@ roslaunch joy_to_dynamixel joy_to_extended_position.launch
 #### 実行
 
 ```python3 step-angle2spring-dist.py```
-
-### ```mag_calibration_node.cpp```
-
-磁気センサのキャリブレーションをするためのノード．
-ばね変位ー＞磁気センサ値をcsvに格納して，磁気センサ値の変化からばね変位を計算する．
-
-#### 実行
-
-```roslaunch calibration mag_calibration.launch```
-
-#### パラメータ
-```mag_calibration.yaml```に記載

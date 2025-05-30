@@ -27,8 +27,9 @@
 
   <!-- mag calibration -->
     <node name="mag_calibration_node" pkg="calibration" type="mag_calibration_node" output="screen">
-      <param name="csv_path" value="$(find calibration)/scripts/data_20250528_205340.csv" />
-      <param name="mag_avg_count" value="10"/>
+      <param name="csv_path" value="$(find calibration)/csv/stepangle_vs_springdist_20250530_132914.csv" />
+      <param name="mag_avg_count" value="5"/>
       <param name="mag_save_index" value="2"/>
+      <param name="save_dir" value="$(find calibration)/csv"/>
     </node>
 </launch>
