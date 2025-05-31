@@ -25,8 +25,12 @@
     <remap from="/present_currents"    to="$(arg cur_topic)"  />
   </node>
 
-  <!-- bilateral_control -->
-  <node pkg="bilateral_test" type="bilateral_2d_force_node" name="bilateral_2d_force_node" output="screen">
-    <rosparam file="$(find bilateral_test)/config/params_2d.yaml" command="load" />
+  <node pkg="bilateral_test" type="mag_tension_converter" name="mag_tension_converter" output="screen">
+    <rosparam file="$(find bilateral_test)/config/csv_params.yaml" command="load" />
   </node>
+
+  <!-- bilateral_control -->
+  <!-- <node pkg="bilateral_test" type="bilateral_2d_force_node" name="bilateral_2d_force_node" output="screen">
+    <rosparam file="$(find bilateral_test)/config/params_2d.yaml" command="load" />
+  </node> -->
 </launch>

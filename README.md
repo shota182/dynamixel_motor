@@ -69,6 +69,15 @@ $$
 \tau_s = K_p (\theta_m - \theta_s)
 $$
 
+### ```mag_tension_converter.cpp```
+
+磁気センサデータを張力に変換するノード．
+
+#### パラメータ
+
+パラメータはcsv_params.yamlで読み込む．
+磁気センサの対象の要素番号にcsvファイルを合わせる．
+
 ### 実行
 
 基本的に各launchで実行できる

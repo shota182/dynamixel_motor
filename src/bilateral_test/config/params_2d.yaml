@@ -1,11 +1,12 @@
 tension_threshold: 0
 pull_value_gain: 5
 Kp: 1.0
-Kf: 0.1
+Kf: 20.0
 Kd: 0.1
 index_master_1: 2
 index_master_2: 0
 index_slave_1: 3
 index_slave_2: 4
-tension_margin: 50
+motor_inverse: [1, 1, 0, 0]
+tension_margin: 0.3
 avg_count: 5

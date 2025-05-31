@@ -1,0 +1,8 @@
+csv_paths_sm:
+  - /home/sskr3/acm_ws/src/calibration/csv/3_merged_mean_mag2.csv
+  - ""
+  - /home/sskr3/acm_ws/src/calibration/csv/1_merged_mean_mag2.csv
+csv_paths_st:
+  - /home/sskr3/acm_ws/src/calibration/csv/3_stepangle_vs_springdist_20250601_002336.csv
+  - ""
+  - /home/sskr3/acm_ws/src/calibration/csv/1_stepangle_vs_springdist_20250601_002155.csv

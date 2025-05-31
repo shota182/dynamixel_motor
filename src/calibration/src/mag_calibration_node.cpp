@@ -72,7 +72,7 @@ public:
       double spring_disp = interpolate(static_cast<double>(step));
       writeCSVRow(ofs, step, spring_disp);  // ここを追加
 
-      ROS_INFO_STREAM("Step: " << cmd.data[0] << ", SpringDisp: " << spring_disp);
+      ROS_INFO_STREAM("Step: " << cmd.data[0] << ", SpringDisp: " << spring_disp << ", mag: " << latest_mag_.data[mag_save_index_]);
     }
 
     ofs.close();

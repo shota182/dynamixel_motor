@@ -9,9 +9,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class StepAngle2SpringDist:
-    def __init__(self, step_1lap, length_fixedend2springpulley_initial, length_springpulley2motor_initial, theta_wire_fixedend2springpulley_initial, theta_wire_springpulley2motor_initial, distance_fixedend2springpulley_holizontal, distance_springpulley2motor_holizontal, radius_springpulley, radius_fixedend, radius_motor, spring_displacement_limit, plot_increment, spring_constant, save_csv_dir):
+    def __init__(self, step_1lap, motor_id, length_fixedend2springpulley_initial, length_springpulley2motor_initial, theta_wire_fixedend2springpulley_initial, theta_wire_springpulley2motor_initial, distance_fixedend2springpulley_holizontal, distance_springpulley2motor_holizontal, radius_springpulley, radius_fixedend, radius_motor, spring_displacement_limit, plot_increment, spring_constant, save_csv_dir):
         # 初期化
         self.step_1lap = step_1lap                                                                                 # [step]
+        self.motor_id = motor_id                                                                                   # モータID
         self.length_fixedend2springpulley_initial = length_fixedend2springpulley_initial * 10**(-3)                # [m]
         self.length_springpulley2motor_initial = length_springpulley2motor_initial * 10**(-3)                      # [m]
         self.theta_wire_fixedend2springpulley_initial = theta_wire_fixedend2springpulley_initial * np.pi / 180.0   # [rad]
@@ -46,7 +47,7 @@ class StepAngle2SpringDist:
             print(f"s: {s}")
             self.calc_springdist2stepangle(s)
             self.motor_step_angle_data.append("{:.3f}".format(self.step_motorangle))
-            self.tension_data.append("{:.3f}".format(self.tension))
+            self.tension_data.append("{:.3f}".format(self.tension_vertical))
         # save csv
         self.save_to_csv(self.motor_step_angle_data, self.spring_displacement_data_mm, self.tension_data, "motor_step_angle", "spring_displacement", "tension")
         # plot spring_displacement - motor_step_angle
@@ -68,7 +69,7 @@ class StepAngle2SpringDist:
         if(len(a) != len(b) or len(a) != len(c)):
             print("Error: a and b must have the same length.")
             sys.exit(1)
-        filename = self.save_csv_dir + "/" + f"stepangle_vs_springdist_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        filename = self.save_csv_dir + "/" + f"{self.motor_id}_stepangle_vs_springdist_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([name_a, name_b, name_c])  # ヘッダー行
@@ -205,18 +206,19 @@ class StepAngle2SpringDist:
 if __name__ == "__main__":
     # param motor
     step_1lap = 4096  # モータの1回転あたりのステップ数 (step)
+    motor_id = 3
     # param dynamics
-    length_fixedend2springpulley_initial = 80              # l_1' (mm)
+    length_fixedend2springpulley_initial = 77              # l_1' (mm)
     length_springpulley2motor_initial = 56                # l_2' (mm)
     theta_wire_springpulley2motor_initial = 5             # theta_i' (deg)
-    theta_wire_fixedend2springpulley_initial = 15          # theta_o' (deg)
-    distance_fixedend2springpulley_holizontal = 77         # d_1 (mm)
-    distance_springpulley2motor_holizontal = 54           # d_2 (mm)
+    theta_wire_fixedend2springpulley_initial = 9          # theta_o' (deg)
+    distance_fixedend2springpulley_holizontal = 0         # d_1 (mm)
+    distance_springpulley2motor_holizontal = 0           # d_2 (mm)
     radius_springpulley = 3                              # r_s (mm)
     radius_fixedend = 2                                  # r_f (mm)
     radius_motor = 7.25                                     # r_m (mm)
     # param plot
-    spring_displacement_limit = [0.0, 3.0]  # ばね変位のLimit (mm)
+    spring_displacement_limit = [0.0, 10.0]  # ばね変位のLimit (mm)
     plot_increment = 0.05  # プロットの間隔 (mm)
     # param spring
     spring_constant = 0.67  # k (N/m)
@@ -224,6 +226,7 @@ if __name__ == "__main__":
     save_csv_dir = "/home/sskr3/acm_ws/src/calibration/csv"  # 保存先ディレクトリ
     StepAngle2SpringDist = StepAngle2SpringDist(
         step_1lap,
+        motor_id,
         length_fixedend2springpulley_initial,
         length_springpulley2motor_initial,
         theta_wire_fixedend2springpulley_initial,

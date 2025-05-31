@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="bilateral_test"
+        type="mag_tension_converter"
+        name="mag_tension_converter"
+        output="screen">
+    
+    <rosparam file="$(find bilateral_test)/config/csv_params.yaml" command="load" />
+  </node>
+</launch>
