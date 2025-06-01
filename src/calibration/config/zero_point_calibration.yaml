@@ -3,7 +3,7 @@ mag_window_size: 5                 # 磁気センサ平均を取るウィンド�
 pull_time: 0.3                     # [sec] モータが引く時間
 stop_time: 1.0                     # [sec] 引いた後に停止して待つ時間
 repeat: 5                          # 引くステップを半分にして繰り返す回数
-pull_step_max: 128                # [step] pull_time中に引く最大ステップ数（512で45度など）
-dist_threshold: 5                # 磁気センサの変化検出しきい値
-mag_target_indices: [0]       # 磁気センサのターゲットインデックス
-motor_direction: [1]          # モータの引く方向（-1: マニピュレータ側、1: モータ側）
+pull_step_max: 64                # [step] pull_time中に引く最大ステップ数（512で45度など）
+dist_threshold: 4                # 磁気センサの変化検出しきい値
+mag_target_indices: [2, 0, 3, 4]       # 磁気センサのターゲットインデックス
+motor_direction: [-1, -1, 1, 1]          # モータの引く方向（-1: マニピュレータ側、1: モータ側）

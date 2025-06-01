@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 from bisect import bisect_left
 
-MAG2_COLUMN = "mag0"  # mag2列名を変数化
+MAG2_COLUMN = "mag4"  # mag2列名を変数化
 SPRING_DISPLACEMENT_COLUMN = "spring_displacement"  # spring_displacement列名を変数化
 
 def interpolate_spring_for_mag2(ref_df, target_mag2):

@@ -18,21 +18,37 @@ public:
     // csv_paths_sm を取得
     std::vector<std::string> csv_paths_sm;
     if (nh_.getParam("csv_paths_sm", csv_paths_sm)) {
-      ROS_INFO_STREAM("CSV paths (sm) received. Count: " << csv_paths_sm.size());
-      loadMagTensionTables(csv_paths_sm, mag_tables_sm_, true);
+        ROS_INFO_STREAM("CSV paths (sm) received. Count: " << csv_paths_sm.size());
+        loadMagTensionTables(csv_paths_sm, mag_tables_sm_, true);
     } else {
-      ROS_WARN("No csv_paths_sm parameter found. All tension will default to -1.");
-      mag_tables_sm_.clear();  // 念のため空にしておく
+        ROS_WARN("No csv_paths_sm parameter found. All tension will default to -1.");
+        mag_tables_sm_.clear();  // 念のため空にしておく
     }
 
     // csv_paths_st を取得
     std::vector<std::string> csv_paths_st;
     if (nh_.getParam("csv_paths_st", csv_paths_st)) {
-      ROS_INFO_STREAM("CSV paths (st) received. Count: " << csv_paths_st.size());
-      loadMagTensionTables(csv_paths_st, mag_tables_st_, false);
+        ROS_INFO_STREAM("CSV paths (st) received. Count: " << csv_paths_st.size());
+        loadMagTensionTables(csv_paths_st, mag_tables_st_, false);
     } else {
-      ROS_WARN("No csv_paths_st parameter found. All tension will default to -1.");
-      mag_tables_st_.clear();  // 念のため空にしておく
+        ROS_WARN("No csv_paths_st parameter found. All tension will default to -1.");
+        mag_tables_st_.clear();  // 念のため空にしておく
+    }
+
+    // theta_i を取得
+    if (nh_.getParam("theta_i", theta_i_)) {
+        ROS_INFO_STREAM("Theta_i received. Count: " << theta_i_.size());
+    } else {
+        ROS_WARN("No theta_i parameter found. Defaulting to empty.");
+        theta_i_.clear();
+    }
+
+    // theta_o を取得
+    if (nh_.getParam("theta_o", theta_o_)) {
+        ROS_INFO_STREAM("Theta_o received. Count: " << theta_o_.size());
+    } else {
+        ROS_WARN("No theta_o parameter found. Defaulting to empty.");
+        theta_o_.clear();
     }
   }
 
@@ -67,6 +83,14 @@ public:
     latest_mag_ = *msg;
   }
 
+  double adjustTensionWithAngle(double tension, double theta_i, double theta_o) {
+      // 角度情報を反映した tension の計算
+      double angle_factor = std::sin(theta_i * M_PI / 180.0) + std::sin(theta_o * M_PI / 180.0);
+      double adjusted_tension = tension / angle_factor;
+
+      return adjusted_tension;
+  }
+
   void run() {
     ros::Rate rate(100);  // 任意の周期
 
@@ -84,7 +108,7 @@ public:
 
         for (size_t i = 0; i < N; ++i) {
             // 条件1: 対応する CSV テーブルが存在しない
-            if (i >= mag_tables_sm_.size() || i >= mag_tables_st_.size()) {
+            if (i >= mag_tables_sm_.size() || i >= mag_tables_st_.size() || i >= theta_i_.size() || i >= theta_o_.size()) {
                 tension_msg.data[i] = -1;
                 continue;
             }
@@ -104,7 +128,10 @@ public:
 
             // st の spring_displacement に相対変化を当てはめて tension を取得
             double tension = interpolateTension(st_table, relative_change);
-            tension_msg.data[i] = tension;
+
+            // 角度情報を反映した tension を計算
+            double adjusted_tension = adjustTensionWithAngle(tension, theta_i_[i], theta_o_[i]);
+            tension_msg.data[i] = adjusted_tension;
         }
 
         pub_tension_.publish(tension_msg);
@@ -219,8 +246,8 @@ private:
   std::vector<MagTensionTable> mag_tables_sm_;
   std::vector<MagTensionTable> mag_tables_st_;
   std::vector<MagTensionTable> mag_tables_;
-
-
+  std::vector<double> theta_i_;  // 内部角度
+  std::vector<double> theta_o_;  // 外部角度
 };
 
 int main(int argc, char** argv) {

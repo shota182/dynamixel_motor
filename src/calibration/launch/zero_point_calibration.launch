@@ -1,7 +1,7 @@
 <launch>
   <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
   <arg name="baud"          default="57600"          />
-  <arg name="motor_count"   default="1"              />
+  <arg name="motor_count"   default="4"              />
   <arg name="freq"          default="50"             />
 
   <arg name="goal_topic"    default="/sensor/motor/input/position"      />
