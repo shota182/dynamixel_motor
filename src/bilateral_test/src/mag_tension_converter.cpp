@@ -11,7 +11,7 @@
 
 class MagTensionConverter {
 public:
-  MagTensionConverter() : nh_("~"), initialized_mag_(false) {
+  MagTensionConverter() : nh_("~"), initialized_mag_(false), updated_mag_(false) {
     sub_mag_ = nh_.subscribe("/sensor/mag", 1, &MagTensionConverter::magCallback, this);
     pub_tension_ = nh_.advertise<std_msgs::Float64MultiArray>("/force/input/tension", 10);
 
@@ -81,6 +81,7 @@ public:
     }
 
     latest_mag_ = *msg;
+    updated_mag_ = true;
   }
 
   double adjustTensionWithAngle(double tension, double theta_i, double theta_o) {
@@ -135,6 +136,7 @@ public:
         }
 
         pub_tension_.publish(tension_msg);
+        updated_mag_ = false;  // 更新フラグをリセット
         rate.sleep();
     }
   }
@@ -239,7 +241,7 @@ private:
   ros::NodeHandle nh_;
   ros::Subscriber sub_mag_;
   ros::Publisher pub_tension_;
-  bool initialized_mag_;
+  bool initialized_mag_, updated_mag_;
   std_msgs::Int32MultiArray initial_mag_;
   std_msgs::Int32MultiArray latest_mag_;
   std::vector<double> initial_spring_displacement_;  // 初期 spring_displacement を保存
