@@ -1,17 +1,17 @@
 <launch>
 
   <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
-  <arg name="baud"          default="57600"          />
+  <arg name="baud"          default="4000000"          />
   <arg name="motor_count"   default="9"              />
-  <arg name="freq"          default="200"             />
+  <arg name="freq"          default="2000"             />
 
   <arg name="goal_topic"    default="/sensor/motor/input/position"      />
   <arg name="pos_topic"     default="/sensor/motor/output/position"   />
   <arg name="cur_topic"     default="/sensor/motor/output/current"    />
 
   <!-- ノード本体 -->
-  <node pkg="dynamixel_control" type="multi_pos_ctrl_node"
-        name="multi_pos_ctrl_node" output="screen">
+  <node pkg="dynamixel_control" type="multi_pos_only_ctrl_node"
+        name="multi_pos_only_ctrl_node" output="screen">
     <param name="device_name"  value="$(arg device)"        />
     <param name="baud_rate"    value="$(arg baud)"          />
     <param name="motor_count"  value="$(arg motor_count)"   />

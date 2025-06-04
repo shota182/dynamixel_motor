@@ -33,24 +33,22 @@ include_directories(
 ##############################################################################
 # 実行ファイル
 ##############################################################################
-add_executable(multi_pos_ctrl_node
-  src/multi_pos_ctrl.cpp
-)
+add_executable(multi_pos_ctrl_node src/multi_pos_ctrl.cpp)
+target_link_libraries(multi_pos_ctrl_node ${catkin_LIBRARIES} ${dynamixel_sdk_LIBRARIES})
+add_dependencies(multi_pos_ctrl_node ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(multi_pos_ctrl_node
-  ${catkin_LIBRARIES}
-  ${dynamixel_sdk_LIBRARIES}
-)
-
-add_dependencies(multi_pos_ctrl_node
-  ${catkin_EXPORTED_TARGETS}
-)
+add_executable(multi_pos_only_ctrl_node src/multi_pos_only_ctrl.cpp)
+target_link_libraries(multi_pos_only_ctrl_node ${catkin_LIBRARIES} ${dynamixel_sdk_LIBRARIES})
+add_dependencies(multi_pos_only_ctrl_node ${catkin_EXPORTED_TARGETS})
 
 ##############################################################################
 # インストール
 ##############################################################################
 # バイナリ
 install(TARGETS multi_pos_ctrl_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+install(TARGETS multi_pos_only_ctrl_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

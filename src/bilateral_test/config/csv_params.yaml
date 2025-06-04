@@ -2,14 +2,14 @@ csv_paths_sm:
   - /home/sskr3/acm_ws/src/calibration/csv/3_merged_mean_mag2_monotonic_fit.csv
   - ""
   - /home/sskr3/acm_ws/src/calibration/csv/1_merged_mean_mag2_monotonic_fit.csv
-  - /home/sskr3/acm_ws/src/calibration/csv/2_merged_mean_mag2_monotonic_fit.csv
-  - /home/sskr3/acm_ws/src/calibration/csv/4_merged_mean_mag2_monotonic_fit.csv
+  # - /home/sskr3/acm_ws/src/calibration/csv/2_merged_mean_mag2_monotonic_fit.csv
+  # - /home/sskr3/acm_ws/src/calibration/csv/4_merged_mean_mag2_monotonic_fit.csv
 csv_paths_st:
   - /home/sskr3/acm_ws/src/calibration/csv/3_stepangle_vs_springdist_20250601_002336.csv
   - ""
   - /home/sskr3/acm_ws/src/calibration/csv/1_stepangle_vs_springdist_20250601_002155.csv
-  - /home/sskr3/acm_ws/src/calibration/csv/2_stepangle_vs_springdist_20250601_134556.csv
-  - /home/sskr3/acm_ws/src/calibration/csv/4_stepangle_vs_springdist_20250601_145703.csv
+  # - /home/sskr3/acm_ws/src/calibration/csv/2_stepangle_vs_springdist_20250601_134556.csv
+  # - /home/sskr3/acm_ws/src/calibration/csv/4_stepangle_vs_springdist_20250601_145703.csv
 theta_i:
   - 5
   - 5

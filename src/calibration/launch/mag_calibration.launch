@@ -1,18 +1,13 @@
 <launch>
   <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
-  <arg name="baud"          default="57600"          />
-  <arg name="motor_count"   default="1"              />
-  <arg name="freq"          default="50"             />
+  <!-- <arg name="baud"          default="57600"          /> -->
+  <arg name="baud"          default="4000000"          />
+  <arg name="motor_count"   default="9"              />
+  <arg name="freq"          default="1000"             />
 
   <arg name="goal_topic"    default="/sensor/motor/input/position"      />
   <arg name="pos_topic"     default="/sensor/motor/output/position"   />
   <arg name="cur_topic"     default="/sensor/motor/output/current"    />
-
-  <!-- arduino -->
-  <node pkg="rosserial_python" type="serial_node.py" name="arduino_serial_node" output="screen">
-    <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00" />
-    <param name="baud" value="115200" />
-  </node>
 
   <!-- dynamixel -->
   <node pkg="dynamixel_control" type="multi_pos_ctrl_node" name="multi_pos_ctrl_node" output="screen">
@@ -25,12 +20,22 @@
     <remap from="/present_currents"    to="$(arg cur_topic)"  />
   </node>
 
+  <!-- arduino -->
+  <node pkg="serial_to_mag" type="serial_to_mag_node" name="serial_to_mag_node" output="screen">
+    <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00" />
+    <param name="baudrate" value="115200" />
+  </node>
+  <!-- <node pkg="rosserial_python" type="serial_node.py" name="arduino_serial_node" output="screen">
+    <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00" />
+    <param name="baud" value="115200" />
+  </node> -->
+
   <!-- mag calibration -->
-    <node name="mag_calibration_node" pkg="calibration" type="mag_calibration_node" output="screen">
+    <!-- <node name="mag_calibration_node" pkg="calibration" type="mag_calibration_node" output="screen">
       <param name="csv_path" value="$(find calibration)/csv/4_stepangle_vs_springdist_20250601_145644.csv" />
       <param name="mag_avg_count" value="5"/>
       <param name="mag_save_index" value="4"/>
       <param name="motor_inverse" value="false"/>
       <param name="save_dir" value="$(find calibration)/csv"/>
-    </node>
+    </node> -->
 </launch>

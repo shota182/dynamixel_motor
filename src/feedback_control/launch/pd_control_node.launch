@@ -2,7 +2,7 @@
   <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
   <arg name="baud"          default="57600"          />
   <arg name="motor_count"   default="2"              />
-  <arg name="freq"          default="50"             />
+  <arg name="freq"          default="20"             />
 
   <arg name="goal_topic"    default="/sensor/motor/input/position"      />
   <arg name="pos_topic"     default="/sensor/motor/output/position"   />
@@ -25,10 +25,17 @@
     <remap from="/present_currents"    to="$(arg cur_topic)"  />
   </node>
 
-  <!-- zero_point_calibration -->
-
-  <node pkg="calibration" type="zero_point_calibration_node" name="zero_point_calibration_node" output="screen">
-    <rosparam file="$(find calibration)/config/zero_point_calibration.yaml" command="load" />
+  <node pkg="bilateral_test" type="mag_tension_converter" name="mag_tension_converter" output="screen">
+    <rosparam file="$(find bilateral_test)/config/csv_params.yaml" command="load" />
   </node>
 
+  <node name="pd_control_node" pkg="feedback_control" type="pd_control_node" output="screen">
+    <!-- PD制御のパラメータ -->
+    <param name="Kp" value="20.0" />
+    <param name="Kd" value="0.1" />
+    <param name="publish_index" value="0" />
+    <!-- モータのi番目が磁気センサの何番目か？ -->
+    <param name="tension_id" value="{2, 0}" />
+    <param name="motor_inverse" value="{-1, 1}" />
+  </node>
 </launch>
