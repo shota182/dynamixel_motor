@@ -21,7 +21,7 @@ public:
     sub_pos_ = nh_.subscribe("/sensor/motor/output/position", 1, &ForceControlNode::positionCallback, this);
     sub_mag_ = nh_.subscribe("/sensor/mag", 1, &ForceControlNode::tensionCallback, this);
     pub_cmd_ = nh_.advertise<std_msgs::Int32MultiArray>("/sensor/motor/input/position", 10);
-    timer_ = nh_.createTimer(ros::Duration(0.02), &ForceControlNode::controlLoop, this);
+    timer_ = nh_.createTimer(ros::Duration(0.005), &ForceControlNode::controlLoop, this);
   }
 
 private:

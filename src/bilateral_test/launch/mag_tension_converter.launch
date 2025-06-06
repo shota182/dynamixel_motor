@@ -1,9 +1,15 @@
 <launch>
+  <arg name="config_file" default="/home/sskr3/acm_ws/settings.yaml" />
+
+  <rosparam file="$(arg config_file)" command="load" />
+
   <node pkg="bilateral_test"
         type="mag_tension_converter"
         name="mag_tension_converter"
         output="screen">
-    
-    <rosparam file="$(find bilateral_test)/config/csv_params.yaml" command="load" />
+    <param name="csv_paths_sm" value="$(param mag_tension_converter/csv_paths_sm)" />
+    <param name="csv_paths_st" value="$(param mag_tension_converter/csv_paths_st)" />
+    <param name="theta_i" value="$(param mag_tension_converter/theta_i)" />
+    <param name="theta_o" value="$(param mag_tension_converter/theta_o)" />
   </node>
 </launch>

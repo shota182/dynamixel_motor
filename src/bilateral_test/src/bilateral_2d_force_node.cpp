@@ -147,10 +147,10 @@ private:
     double tension_slave_2 = latest_tension_.data[index_slave_2_];
 
     // コマンド計算
-    cmd.data[1] = static_cast<int>(motor_inverse_[1] * (Kp_ * (position_master_1 - position_slave_1) + Kl_ * std::max(0.0, tension_margin_-tension_slave_1)) + initial_position_.data[1]);
-    cmd.data[3] = static_cast<int>(motor_inverse_[3] * (Kp_ * (position_master_2 - position_slave_2) + Kl_ * std::max(0.0, tension_margin_-tension_slave_2)) + initial_position_.data[3]);
-    cmd.data[0] = static_cast<int>(motor_inverse_[0] * (Kf_ * (tension_slave_2 - tension_master_1) + Kl_ * std::max(0.0, tension_margin_-tension_master_1)) + latest_position_.data[0]);
-    cmd.data[2] = static_cast<int>(motor_inverse_[2] * (Kf_ * (tension_slave_1 - tension_master_2) + Kl_ * std::max(0.0, tension_margin_-tension_master_2)) + latest_position_.data[2]);
+    cmd.data[1] = static_cast<int>(motor_inverse_[1] * (Kp_ * (position_master_1 - position_slave_1) + pull_value_gain_) + initial_position_.data[1]);
+    cmd.data[3] = static_cast<int>(motor_inverse_[3] * (Kp_ * (position_master_2 - position_slave_2) + pull_value_gain_) + initial_position_.data[3]);
+    cmd.data[0] = static_cast<int>(motor_inverse_[0] * (Kf_ * (tension_slave_2 - tension_master_1)) + latest_position_.data[0]);
+    cmd.data[2] = static_cast<int>(motor_inverse_[2] * (Kf_ * (tension_slave_1 - tension_master_2)) + latest_position_.data[2]);
 
     // 入力位置の更新
     // for (size_t i = 0; i < latest_position_.data.size(); ++i) {

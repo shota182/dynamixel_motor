@@ -11,7 +11,6 @@ public:
     nh_.param("Kp", Kp_, 1.0);
     nh_.param("Kd", Kd_, 0.1);
     nh_.param("publish_index", publish_index_, 0); // 配列の何番目をpubするか指定
-    nh_.param("tension_id", tension_id_, std::vector<int>{2, 0}); // tension_idの初期値を設定
     nh_.param("motor_inverse", motor_inverse_, std::vector<int>{-1, 1}); // モーターの反転設定（1: 正方向, -1: 逆方向）
 
     sub_tension_ = nh_.subscribe("/force/input/tension", 1, &PDControlNode::tensionCallback, this);
@@ -42,52 +41,34 @@ private:
       target_tension_.resize(motor_positions_.size(), 0.0); // 不足分を0.0で埋める
     }
 
-    // tension_idのサイズをposition_cmdのサイズに合わせる
-    // if (tension_id_.size() < motor_positions_.size()) {
-    //   tension_id_.resize(motor_positions_.size(), -1); // 不足分を-1で埋める
-    // }
-
     // motor_inverseのサイズをposition_cmdのサイズに合わせる
     if (motor_inverse_.size() < motor_positions_.size()) {
       motor_inverse_.resize(motor_positions_.size(), 1); // 不足分を1（正方向）で埋める
     }
 
     std_msgs::Int32MultiArray position_cmd;
-    position_cmd.data.resize(tension_id_.size(), -1); // 初期値を-1に設定
 
     for (size_t i = 0; i < motor_positions_.size(); ++i) {
-        ROS_INFO_STREAM("in for" << i);
-        ROS_INFO("tension_id_[i]: %d", tension_id_[i]);
-      if (tension_id_[i] >= 0) {
-        double error = target_tension_[i] - msg->data[tension_id_[i]];
-        double derivative = (msg->data[tension_id_[i]] - previous_tension_[tension_id_[i]]) / control_interval_;
+      double error = target_tension_[i] - msg->data[i];
+      double derivative = (msg->data[i] - previous_tension_[i]) / control_interval_;
+      // PD制御の計算（モーターの反転を考慮）
+      position_cmd.data[i] = static_cast<int>(motor_inverse_[i] * (Kp_ * error - Kd_ * derivative) + motor_positions_[i]);
 
-        // デバッグログを追加
-        ROS_INFO("Index: %zu, Target Tension: %.2f, Current Tension: %.2f, Error: %.2f, Derivative: %.2f",
-                 i, target_tension_[i], msg->data[tension_id_[i]], error, derivative);
-
-        // PD制御の計算（モーターの反転を考慮）
-        position_cmd.data[i] = static_cast<int>(motor_inverse_[i] * (Kp_ * error - Kd_ * derivative) + motor_positions_[i]);
-
-        // 計算結果のデバッグログ
-        ROS_INFO("Motor Inverse: %d, Motor Position: %d, Position Command: %d",
-                 motor_inverse_[i], motor_positions_[i], position_cmd.data[i]);
-      } else {
-        position_cmd.data[i] = motor_positions_[i]; // 無効なtension_idの場合は現在の位置を使用
-        // ROS_WARN("Index: %zu, Tension ID: %d is out of range or invalid. Skipping.", i, tension_id_[i]);
-      }
+      // 計算結果のデバッグログ
+      // ROS_INFO("Index: %zu, Target Tension: %.2f, Current Tension: %.2f, Error: %.2f, Derivative: %.2f", i, target_tension_[i], msg->data[i], error, derivative);
+      // ROS_INFO("Motor Inverse: %d, Motor Position: %d, Position Command: %d", motor_inverse_[i], motor_positions_[i], position_cmd.data[i]);
     }
 
     previous_tension_ = msg->data;
     pub_position_.publish(position_cmd);
 
-    ROS_INFO_STREAM("publish_index" << publish_index_);
-    ROS_INFO_STREAM("msg->data[tension_id_[publish_index_]" << msg->data[tension_id_[publish_index_]]);
-    ROS_INFO_STREAM("target_tension_[publish_index_]" << target_tension_[publish_index_]);
+    // ROS_INFO_STREAM("publish_index" << publish_index_);
+    // ROS_INFO_STREAM("msg->data[tension_id_[publish_index_]" << msg->data[tension_id_[publish_index_]]);
+    // ROS_INFO_STREAM("target_tension_[publish_index_]" << target_tension_[publish_index_]);
     // 指定されたインデックスの値をpub
     if (publish_index_ >= 0 && publish_index_ < msg->data.size()) {
       std_msgs::Float64 selected_position_msg;
-      selected_position_msg.data = msg->data[tension_id_[publish_index_]]; // tension_idに基づいて選択された位置を取得
+      selected_position_msg.data = msg->data[publish_index_]; // tension_idに基づいて選択された位置を取得
       pub_selected_position_.publish(selected_position_msg);
 
       std_msgs::Float64 selected_target_tension_msg;
@@ -131,7 +112,6 @@ private:
 
   std::vector<double> previous_tension_;
   std::vector<double> target_tension_;
-  std::vector<int> tension_id_; // tensionの要素番号をposition_cmdに割り当てる
   std::vector<int> motor_inverse_; // モーターの反転設定（1: 正方向, -1: 逆方向）
   std::vector<int> motor_positions_, initial_position_; // モーターの位置データ
   bool initialized_tension_, initialized_position_;

@@ -1,41 +1,33 @@
 <launch>
-  <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
-  <!-- <arg name="baud"          default="57600"          /> -->
-  <arg name="baud"          default="4000000"          />
-  <arg name="motor_count"   default="9"              />
-  <arg name="freq"          default="1000"             />
+  <!-- YAMLファイルを読み込む -->
+  <arg name="config_file" default="/home/sskr3/acm_ws/settings.yaml" />
 
-  <arg name="goal_topic"    default="/sensor/motor/input/position"      />
-  <arg name="pos_topic"     default="/sensor/motor/output/position"   />
-  <arg name="cur_topic"     default="/sensor/motor/output/current"    />
+  <!-- パラメータを読み込み -->
+  <rosparam file="$(arg config_file)" command="load" />
 
   <!-- dynamixel -->
   <node pkg="dynamixel_control" type="multi_pos_ctrl_node" name="multi_pos_ctrl_node" output="screen">
-    <param name="device_name"  value="$(arg device)"        />
-    <param name="baud_rate"    value="$(arg baud)"          />
-    <param name="motor_count"  value="$(arg motor_count)"   />
-    <param name="freq"         value="$(arg freq)"          />
-    <remap from="/goal_positions"      to="$(arg goal_topic)" />
-    <remap from="/present_positions"   to="$(arg pos_topic)"  />
-    <remap from="/present_currents"    to="$(arg cur_topic)"  />
+    <param name="device_name"  value="$(param multi_pos_ctrl_node/device_name)" />
+    <param name="baud_rate"    value="$(param multi_pos_ctrl_node/baud_rate)" />
+    <param name="motor_count"  value="$(param multi_pos_ctrl_node/motor_count)" />
+    <param name="freq"         value="$(param multi_pos_ctrl_node/freq)" />
+    <remap from="/goal_positions"      to="$(param multi_pos_ctrl_node/goal_topic)" />
+    <remap from="/present_positions"   to="$(param multi_pos_ctrl_node/pos_topic)" />
+    <remap from="/present_currents"    to="$(param multi_pos_ctrl_node/cur_topic)" />
   </node>
 
   <!-- arduino -->
   <node pkg="serial_to_mag" type="serial_to_mag_node" name="serial_to_mag_node" output="screen">
-    <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00" />
-    <param name="baudrate" value="115200" />
+    <param name="port" value="$(param serial_to_mag_node/port)" />
+    <param name="baudrate" value="$(param serial_to_mag_node/baudrate)" />
   </node>
-  <!-- <node pkg="rosserial_python" type="serial_node.py" name="arduino_serial_node" output="screen">
-    <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00" />
-    <param name="baud" value="115200" />
-  </node> -->
 
   <!-- mag calibration -->
-    <!-- <node name="mag_calibration_node" pkg="calibration" type="mag_calibration_node" output="screen">
-      <param name="csv_path" value="$(find calibration)/csv/4_stepangle_vs_springdist_20250601_145644.csv" />
-      <param name="mag_avg_count" value="5"/>
-      <param name="mag_save_index" value="4"/>
-      <param name="motor_inverse" value="false"/>
-      <param name="save_dir" value="$(find calibration)/csv"/>
-    </node> -->
+  <node name="mag_calibration_node" pkg="calibration" type="mag_calibration_node" output="screen">
+    <param name="csv_path" value="$(param mag_calibration_node/csv_path)" />
+    <param name="mag_avg_count" value="$(param mag_calibration_node/mag_avg_count)" />
+    <param name="mag_save_index" value="$(param mag_calibration_node/mag_save_index)" />
+    <param name="motor_inverse" value="$(param mag_calibration_node/motor_inverse)" />
+    <param name="save_dir" value="$(param mag_calibration_node/save_dir)" />
+  </node>
 </launch>

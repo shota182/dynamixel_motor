@@ -1,24 +1,15 @@
 <launch>
 
-  <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
-  <arg name="baud"          default="4000000"          />
-  <arg name="motor_count"   default="9"              />
-  <arg name="freq"          default="2000"             />
+  <!-- YAMLファイルを読み込む -->
+  <arg name="config_file" default="/home/sskr3/acm_ws/settings.yaml" />
 
-  <arg name="goal_topic"    default="/sensor/motor/input/position"      />
-  <arg name="pos_topic"     default="/sensor/motor/output/position"   />
-  <arg name="cur_topic"     default="/sensor/motor/output/current"    />
+  <!-- パラメータを読み込み -->
+  <rosparam file="$(arg config_file)" command="load" />
 
   <!-- ノード本体 -->
-  <node pkg="dynamixel_control" type="multi_pos_only_ctrl_node"
-        name="multi_pos_only_ctrl_node" output="screen">
-    <param name="device_name"  value="$(arg device)"        />
-    <param name="baud_rate"    value="$(arg baud)"          />
-    <param name="motor_count"  value="$(arg motor_count)"   />
-    <param name="freq"         value="$(arg freq)"          />
-    <remap from="/goal_positions"      to="$(arg goal_topic)" />
-    <remap from="/present_positions"   to="$(arg pos_topic)"  />
-    <remap from="/present_currents"    to="$(arg cur_topic)"  />
+  <node pkg="dynamixel_control" type="multi_pos_only_ctrl_node" name="multi_pos_only_ctrl_node" output="screen">
+    <remap from="/goal_positions"      to="$(param multi_pos_only_ctrl/goal_topic)" />
+    <remap from="/present_positions"   to="$(param multi_pos_only_ctrl/pos_topic)"  />
   </node>
 
 </launch>

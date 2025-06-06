@@ -1,36 +1,47 @@
 <launch>
-  <arg name="device"        default="/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"   />
-  <arg name="baud"          default="57600"          />
-  <arg name="motor_count"   default="4"              />
-  <arg name="freq"          default="50"             />
+  <arg name="config_file" default="/home/sskr3/acm_ws/settings.yaml" />
 
-  <arg name="goal_topic"    default="/sensor/motor/input/position"      />
-  <arg name="pos_topic"     default="/sensor/motor/output/position"   />
-  <arg name="cur_topic"     default="/sensor/motor/output/current"    />
+  <rosparam file="$(arg config_file)" command="load" />
 
   <!-- arduino -->
   <node pkg="rosserial_python" type="serial_node.py" name="arduino_serial_node" output="screen">
-    <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00" />
-    <param name="baud" value="115200" />
+    <param name="port" value="$(param arduino_serial_node/port)" />
+    <param name="baud" value="$(param arduino_serial_node/baud)" />
   </node>
 
   <!-- dynamixel -->
   <node pkg="dynamixel_control" type="multi_pos_ctrl_node" name="multi_pos_ctrl_node" output="screen">
-    <param name="device_name"  value="$(arg device)"        />
-    <param name="baud_rate"    value="$(arg baud)"          />
-    <param name="motor_count"  value="$(arg motor_count)"   />
-    <param name="freq"         value="$(arg freq)"          />
-    <remap from="/goal_positions"      to="$(arg goal_topic)" />
-    <remap from="/present_positions"   to="$(arg pos_topic)"  />
-    <remap from="/present_currents"    to="$(arg cur_topic)"  />
+    <param name="device_name"  value="$(param multi_pos_ctrl_node/device_name)" />
+    <param name="baud_rate"    value="$(param multi_pos_ctrl_node/baud_rate)" />
+    <param name="motor_count"  value="$(param multi_pos_ctrl_node/motor_count)" />
+    <param name="freq"         value="$(param multi_pos_ctrl_node/freq)" />
+    <remap from="/goal_positions"      to="$(param multi_pos_ctrl_node/goal_topic)" />
+    <remap from="/present_positions"   to="$(param multi_pos_ctrl_node/pos_topic)" />
+    <remap from="/present_currents"    to="$(param multi_pos_ctrl_node/cur_topic)" />
   </node>
 
   <node pkg="bilateral_test" type="mag_tension_converter" name="mag_tension_converter" output="screen">
-    <rosparam file="$(find bilateral_test)/config/csv_params.yaml" command="load" />
+    <param name="csv_paths_sm" value="$(param mag_tension_converter/csv_paths_sm)" />
+    <param name="csv_paths_st" value="$(param mag_tension_converter/csv_paths_st)" />
+    <param name="theta_i" value="$(param mag_tension_converter/theta_i)" />
+    <param name="theta_o" value="$(param mag_tension_converter/theta_o)" />
   </node>
 
   <!-- bilateral_control -->
   <node pkg="bilateral_test" type="bilateral_2d_force_node" name="bilateral_2d_force_node" output="screen">
-    <rosparam file="$(find bilateral_test)/config/params_2d.yaml" command="load" />
+    <param name="tension_threshold" value="$(param bilateral_2d_force_node/tension_threshold)" />
+    <param name="pull_value_gain" value="$(param bilateral_2d_force_node/pull_value_gain)" />
+    <param name="Kp" value="$(param bilateral_2d_force_node/Kp)" />
+    <param name="Kf" value="$(param bilateral_2d_force_node/Kf)" />
+    <param name="Kc" value="$(param bilateral_2d_force_node/Kc)" />
+    <param name="Kd" value="$(param bilateral_2d_force_node/Kd)" />
+    <param name="Kl" value="$(param bilateral_2d_force_node/Kl)" />
+    <param name="index_master_1" value="$(param bilateral_2d_force_node/index_master_1)" />
+    <param name="index_master_2" value="$(param bilateral_2d_force_node/index_master_2)" />
+    <param name="index_slave_1" value="$(param bilateral_2d_force_node/index_slave_1)" />
+    <param name="index_slave_2" value="$(param bilateral_2d_force_node/index_slave_2)" />
+    <param name="motor_inverse" value="$(param bilateral_2d_force_node/motor_inverse)" />
+    <param name="tension_margin" value="$(param bilateral_2d_force_node/tension_margin)" />
+    <param name="avg_count" value="$(param bilateral_2d_force_node/avg_count)" />
   </node>
 </launch>
