@@ -15,8 +15,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(pd_control_node src/tension_feedback_control.cpp)
-target_link_libraries(pd_control_node ${catkin_LIBRARIES})
+add_executable(feedback_control_node src/tension_feedback_control.cpp)
+target_link_libraries(feedback_control_node ${catkin_LIBRARIES})
 
 # Launchファイルをインストール
 install(DIRECTORY launch/

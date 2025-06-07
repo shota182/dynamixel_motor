@@ -2,27 +2,29 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <sensor_msgs/MagneticField.h>
 #include <deque>
+#include <vector>
+#include <cmath>
 
 class ZeroPointCalibrationNode {
 public:
   ZeroPointCalibrationNode(ros::NodeHandle& nh) : nh_(nh) {
     // YAMLからパラメータ読み込み
     nh_.param("calibration_samples", mag_calibration_samples_, 20);
-    nh_.param("mag_window_size", mag_window_size_, 5); // [sample]magの平均をとるためのウィンドウサイズ
+    nh_.param("mag_window_size", mag_window_size_, 5);
     nh_.param("pull_time", pull_time_, 0.3);
     nh_.param("stop_time", stop_time_, 1.0);
-    nh_.param("repeat", repeat_, 3); // 繰り返し回数
-    nh_.param("pull_step_max", pull_step_max_, 512); // [step]pull_time_中に引かれるステップ数 // 512で45[deg]
-    nh_.param("dist_threshold", dist_threshold_, 10); // 磁気センサデータの変化があるとみなすしきい値
-    nh.getParam("mag_target_indices", mag_target_indices_);
-    nh.getParam("motor_direction", motor_direction_);
+    nh_.param("repeat", repeat_, 3);
+    nh_.param("pull_step_max", pull_step_max_, 512);
+    nh_.param("dist_threshold", dist_threshold_, 10);
+    nh_.getParam("mag_target_indices", mag_target_indices_);
+    nh_.getParam("motor_direction", motor_direction_);
 
     sub_pos_ = nh_.subscribe("/sensor/motor/output/position", 1, &ZeroPointCalibrationNode::positionCallback, this);
     sub_mag_ = nh_.subscribe("/sensor/mag", 1, &ZeroPointCalibrationNode::magCallback, this);
     pub_cmd_ = nh_.advertise<std_msgs::Int32MultiArray>("/sensor/motor/input/position", 10);
     timer_ = nh_.createTimer(ros::Duration(0.02), &ZeroPointCalibrationNode::execute, this);
 
-    ROS_INFO("Zero Point Calibration Node initialized. calibration_samples = %d", mag_window_size_);
+    ROS_INFO("Zero Point Calibration Node initialized.");
   }
 
   void spin() {
@@ -37,18 +39,13 @@ private:
   ros::Timer timer_;
 
   std_msgs::Int32MultiArray initial_position_, pull_start_position_, current_position_, changed_position_;
-
   std::deque<std_msgs::Int32MultiArray> mag_buffer_;
-  // std_msgs::Int32MultiArray;
   std::vector<bool> mag_not_changed_;
   int mag_calibration_samples_, mag_window_size_;
-  double pull_time_;
-  double stop_time_;
+  double pull_time_, stop_time_;
   int repeat_, pull_step_max_, dist_threshold_;
   std::vector<int> mag_target_indices_, motor_direction_;
-  bool calibrated_;
-  bool initialized_position_ = false;
-  bool initialized_mag_ = false;
+  bool initialized_position_ = false, initialized_mag_ = false;
 
   struct MeanVarianceResult {
     std::vector<double> mean;
@@ -66,19 +63,13 @@ private:
 
   State current_state_ = State::INITIALIZING;
   ros::Time state_start_time_ = ros::Time::now();
-  ros::Publisher pub_;
-  std::deque<std::vector<int32_t>> buffer_;
-  int buffer_size_ = 5;
-
 
   void positionCallback(const std_msgs::Int32MultiArray::ConstPtr& msg) {
-    // 初回のみ位置を保存
     if (!initialized_position_) {
       initial_position_ = *msg;
       initialized_position_ = true;
       ROS_INFO("Initial motor position received and stored.");
     }
-    // 最新の位置を保存
     current_position_ = *msg;
   }
 
@@ -89,7 +80,7 @@ private:
         selected_data.push_back(msg->data[idx]);
       } else {
         ROS_WARN("Mag index %d out of range in received message.", idx);
-        selected_data.push_back(0);  // 範囲外のときは0などで埋める（またはcontinueで無視も可）
+        selected_data.push_back(0);
       }
     }
     if (!initialized_mag_) {
@@ -144,13 +135,12 @@ private:
     return result;
   }
 
-  void addDataToBuffer(std::deque<std_msgs::Int32MultiArray>& buffer, const std::vector<int32_t>& new_data, int data_length)
-  {
+  void addDataToBuffer(std::deque<std_msgs::Int32MultiArray>& buffer, const std::vector<int32_t>& new_data, int data_length) {
     if (data_length > 0 && static_cast<int>(buffer.size()) >= data_length) {
       buffer.pop_front();
     }
     std_msgs::Int32MultiArray msg;
-    msg.data = new_data;  // vector をコピー
+    msg.data = new_data;
     buffer.push_back(msg);
   }
 
@@ -159,31 +149,28 @@ private:
     buffer.clear();
   }
 
-  // 平均がdist_threshold_を超えるかどうかをチェック
-  void checkMagDistanceElementwise(const std::vector<double>& current, const std::vector<double>& initial) {
-    if (current.size() != initial.size()) {
-      ROS_WARN("Mean vector size mismatch.");
-      return;
+  void checkMagDistanceElementwise(const std::vector<double>& current_mean, const std::vector<double>& initial_mean) {
+    if (current_mean.size() != initial_mean.size()) {
+        ROS_WARN("Size mismatch between current_mean and initial_mean.");
+        return;
     }
 
-    if (mag_not_changed_.size() != current.size()) {
-      mag_not_changed_.resize(current.size(), true);
+    if (mag_not_changed_.size() != current_mean.size()) {
+        mag_not_changed_.resize(current_mean.size(), true);
     }
 
-    for (size_t i = 0; i < current.size(); ++i) {
-      double diff = std::abs(current[i] - initial[i]);
-      if (diff > dist_threshold_) {
-        mag_not_changed_[i] = false;
-      } else {
-        mag_not_changed_[i] = true;
-      }
+    for (size_t i = 0; i < current_mean.size(); ++i) {
+        double diff = std::abs(current_mean[i] - initial_mean[i]);
+        if (diff > dist_threshold_) {
+            mag_not_changed_[i] = false;
+        } else {
+            mag_not_changed_[i] = true;
+        }
     }
-  }
+}
 
-  void execute(const ros::TimerEvent&)
-  {
-    if(!initialized_position_ || !initialized_mag_) {
-      // 初期位置が取得できていない場合
+  void execute(const ros::TimerEvent&) {
+    if (!initialized_position_ || !initialized_mag_) {
       ROS_WARN("Motor position or Mag not initialized yet.");
       return;
     }
@@ -329,7 +316,7 @@ private:
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "zero_point_calibration_node");
-  ros::NodeHandle nh("~");  // プライベート名前空間から読み込む
+  ros::NodeHandle nh("~");
   ZeroPointCalibrationNode node(nh);
   node.spin();
   return 0;

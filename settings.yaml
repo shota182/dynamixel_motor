@@ -2,9 +2,14 @@ arduino_serial_node:
   port: "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00"
   baud: 115200
 
-serial_to_mag_node:
+serial_to_mag_ascii_node:
   port: "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00"
   baudrate: 115200
+  
+serial_to_mag_binary_node:
+  port: "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Due_Prog._Port_2423831343535160F0C1-if00"
+  baudrate: 115200
+  num_channels: 1
 
 multi_pos_ctrl_node:
   device_name: "/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"
@@ -15,19 +20,20 @@ multi_pos_ctrl_node:
   pos_topic: "/sensor/motor/output/position"
   cur_topic: "/sensor/motor/output/current"
 
-multi_pos_only_ctrl:
+multi_pos_only_ctrl_node:
   device_name: "/dev/serial/by-id/usb-BestTechnology_E148_E148-if00-port0"
   baud_rate: 4000000
-  motor_count: 2
-  freq: 200
+  motor_count: 1
+  freq: 2000
   goal_topic: "/sensor/motor/input/position"
   pos_topic: "/sensor/motor/output/position"
 
-pd_control_node:
+feedback_control_node:
   Kp: 20.0
-  Kd: 0.1
+  Ki: 5.0
+  Kd: 0.5
   publish_index: 0
-  motor_inverse: [-1, 1]
+  motor_inverse: [-1]
 
 mag_calibration_node:
   csv_path: "$(find calibration)/csv/4_stepangle_vs_springdist_20250601_145644.csv"
@@ -37,35 +43,44 @@ mag_calibration_node:
   save_dir: "$(find calibration)/csv"
 
 zero_point_calibration_node:
-  calibration_file: "$(find calibration)/config/zero_point_calibration.yaml"
+  calibration_samples: 10
+  mag_window_size: 5
+  pull_time: 0.3
+  stop_time: 1.0
+  repeat: 4
+  pull_step_max: 64
+  dist_threshold: 4
+  mag_target_indices: [0]
+  motor_direction: [-1]
 
 mag_tension_converter:
+  freq: 2000
   csv_paths_sm:
     - /home/sskr3/acm_ws/src/calibration/csv/1_merged_mean_mag2_monotonic_fit.csv
-    # - /home/sskr3/acm_ws/src/calibration/csv/2_merged_mean_mag2_monotonic_fit.csv
+    - /home/sskr3/acm_ws/src/calibration/csv/2_merged_mean_mag2_monotonic_fit.csv
     - /home/sskr3/acm_ws/src/calibration/csv/3_merged_mean_mag2_monotonic_fit.csv
-    # - /home/sskr3/acm_ws/src/calibration/csv/4_merged_mean_mag2_monotonic_fit.csv
+    - /home/sskr3/acm_ws/src/calibration/csv/4_merged_mean_mag2_monotonic_fit.csv
   csv_paths_st:
     - /home/sskr3/acm_ws/src/calibration/csv/1_stepangle_vs_springdist_20250601_002155.csv
-    # - /home/sskr3/acm_ws/src/calibration/csv/2_stepangle_vs_springdist_20250601_134556.csv
+    - /home/sskr3/acm_ws/src/calibration/csv/2_stepangle_vs_springdist_20250601_134556.csv
     - /home/sskr3/acm_ws/src/calibration/csv/3_stepangle_vs_springdist_20250601_002336.csv
-    # - /home/sskr3/acm_ws/src/calibration/csv/4_stepangle_vs_springdist_20250601_145703.csv
+    - /home/sskr3/acm_ws/src/calibration/csv/4_stepangle_vs_springdist_20250601_145703.csv
   theta_i:
     - 5
     - 5
     - 5
     - 5
   theta_o:
-    - 15
+    - 14
     - 14
     - 11
     - 7
 
 bilateral_2d_force_node:
   tension_threshold: 0
-  pull_value_gain: 20
+  pull_value_gain: 50
   Kp: 1.0
-  Kf: 15.0
+  Kf: 20.0
   Kc: 20.0
   Kd: 0.1
   Kl: 25.0
@@ -76,4 +91,6 @@ bilateral_2d_force_node:
   motor_inverse: [-1, -1, 1, 1]
   tension_margin: 2.0
   avg_count: 5
+  output_log: false
+  control_loop_freq: 500.0
 

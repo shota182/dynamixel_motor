@@ -11,6 +11,9 @@
   <!-- dynamixel -->
   <include file="$(find dynamixel_control)/launch/multi_pos_only_ctrl.launch" />
 
-  <!-- zero_point_calibration -->
-  <node pkg="calibration" type="zero_point_calibration_node" name="zero_point_calibration_node" output="screen" />
+  <!-- mag tension converter -->
+  <include file="$(find bilateral_test)/launch/mag_tension_converter.launch" />
+
+  <!-- PD制御ノード -->
+  <node name="feedback_control_node" pkg="feedback_control" type="feedback_control_node" output="screen" />
 </launch>

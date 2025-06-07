@@ -1,5 +1,4 @@
 <launch>
-
   <!-- YAMLファイルを読み込む -->
   <arg name="config_file" default="/home/sskr3/acm_ws/settings.yaml" />
 
@@ -7,9 +6,5 @@
   <rosparam file="$(arg config_file)" command="load" />
 
   <!-- ノード本体 -->
-  <node pkg="dynamixel_control" type="multi_pos_only_ctrl_node" name="multi_pos_only_ctrl_node" output="screen">
-    <remap from="/goal_positions"      to="$(param multi_pos_only_ctrl/goal_topic)" />
-    <remap from="/present_positions"   to="$(param multi_pos_only_ctrl/pos_topic)"  />
-  </node>
-
+  <node pkg="dynamixel_control" type="multi_pos_only_ctrl_node" name="multi_pos_only_ctrl_node" output="screen" />
 </launch>

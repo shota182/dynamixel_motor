@@ -1,13 +1,11 @@
 #include <ros/ros.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
-
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
 #include <iostream>
-
 
 class MagTensionConverter {
 public:
@@ -15,41 +13,21 @@ public:
     sub_mag_ = nh_.subscribe("/sensor/mag", 1, &MagTensionConverter::magCallback, this);
     pub_tension_ = nh_.advertise<std_msgs::Float64MultiArray>("/force/input/tension", 10);
 
-    // csv_paths_sm を取得
-    std::vector<std::string> csv_paths_sm;
-    if (nh_.getParam("csv_paths_sm", csv_paths_sm)) {
-        ROS_INFO_STREAM("CSV paths (sm) received. Count: " << csv_paths_sm.size());
-        loadMagTensionTables(csv_paths_sm, mag_tables_sm_, true);
-    } else {
-        ROS_WARN("No csv_paths_sm parameter found. All tension will default to -1.");
-        mag_tables_sm_.clear();  // 念のため空にしておく
-    }
+    // settings.yamlからパラメータを取得
+    nh_.getParam("freq", freq_);
+    nh_.getParam("csv_paths_sm", csv_paths_sm_);
+    nh_.getParam("csv_paths_st", csv_paths_st_);
+    nh_.getParam("theta_i", theta_i_);
+    nh_.getParam("theta_o", theta_o_);
 
-    // csv_paths_st を取得
-    std::vector<std::string> csv_paths_st;
-    if (nh_.getParam("csv_paths_st", csv_paths_st)) {
-        ROS_INFO_STREAM("CSV paths (st) received. Count: " << csv_paths_st.size());
-        loadMagTensionTables(csv_paths_st, mag_tables_st_, false);
-    } else {
-        ROS_WARN("No csv_paths_st parameter found. All tension will default to -1.");
-        mag_tables_st_.clear();  // 念のため空にしておく
-    }
+    ROS_INFO_STREAM("CSV paths (sm) received. Count: " << csv_paths_sm_.size());
+    ROS_INFO_STREAM("CSV paths (st) received. Count: " << csv_paths_st_.size());
+    ROS_INFO_STREAM("Theta_i received. Count: " << theta_i_.size());
+    ROS_INFO_STREAM("Theta_o received. Count: " << theta_o_.size());
 
-    // theta_i を取得
-    if (nh_.getParam("theta_i", theta_i_)) {
-        ROS_INFO_STREAM("Theta_i received. Count: " << theta_i_.size());
-    } else {
-        ROS_WARN("No theta_i parameter found. Defaulting to empty.");
-        theta_i_.clear();
-    }
-
-    // theta_o を取得
-    if (nh_.getParam("theta_o", theta_o_)) {
-        ROS_INFO_STREAM("Theta_o received. Count: " << theta_o_.size());
-    } else {
-        ROS_WARN("No theta_o parameter found. Defaulting to empty.");
-        theta_o_.clear();
-    }
+    // CSVファイルを読み込む
+    loadMagTensionTables(csv_paths_sm_, mag_tables_sm_, true);
+    loadMagTensionTables(csv_paths_st_, mag_tables_st_, false);
   }
 
   struct MagTensionTable {
@@ -93,7 +71,7 @@ public:
   }
 
   void run() {
-    ros::Rate rate(100);  // 任意の周期
+    ros::Rate rate(freq_);  // 任意の周期
 
     while (ros::ok()) {
         ros::spinOnce();
@@ -241,15 +219,18 @@ private:
   ros::NodeHandle nh_;
   ros::Subscriber sub_mag_;
   ros::Publisher pub_tension_;
+  int freq_;
   bool initialized_mag_, updated_mag_;
   std_msgs::Int32MultiArray initial_mag_;
   std_msgs::Int32MultiArray latest_mag_;
   std::vector<double> initial_spring_displacement_;  // 初期 spring_displacement を保存
+  std::vector<std::string> csv_paths_sm_;
+  std::vector<std::string> csv_paths_st_;
+  std::vector<double> theta_i_;  // 内部角度
+  std::vector<double> theta_o_;  // 外部角度
   std::vector<MagTensionTable> mag_tables_sm_;
   std::vector<MagTensionTable> mag_tables_st_;
   std::vector<MagTensionTable> mag_tables_;
-  std::vector<double> theta_i_;  // 内部角度
-  std::vector<double> theta_o_;  // 外部角度
 };
 
 int main(int argc, char** argv) {

@@ -21,15 +21,23 @@ public:
   {
     /* ---- パラメータ ---- */
     nh_.param("device_name", device_, std::string("/dev/ttyUSB0"));
-    nh_.param("baud_rate",   baud_,   57600);
-    nh_.param("motor_count", motor_cnt_, 3);
-    nh_.param("freq",        freq_,   50.0);
+    nh_.param("baud_rate", baud_, 57600);
+    nh_.param("motor_count", motor_cnt_, 2);
+    nh_.param("freq", freq_, 200.0);
+    nh_.param("goal_topic", goal_topic_, std::string("/sensor/motor/input/position"));
+    nh_.param("pos_topic", pos_topic_, std::string("/sensor/motor/output/position"));
 
     /* ---- SDK ---- */
     port_   = dynamixel::PortHandler::getPortHandler(device_.c_str());
     packet_ = dynamixel::PacketHandler::getPacketHandler(2.0);
-    if (!port_->openPort())            ROS_FATAL("openPort fail");
-    if (!port_->setBaudRate(baud_))    ROS_FATAL("setBaud fail");
+    if (!port_->openPort()) {
+      ROS_FATAL("Failed to open port: %s. Please check the device connection and permissions.", device_.c_str());
+      throw std::runtime_error("Port open failed");
+    }
+    if (!port_->setBaudRate(baud_)) {
+      ROS_FATAL("Failed to set baud rate: %d. Please check the device capabilities.", baud_);
+      throw std::runtime_error("Baud rate set failed");
+    }
 
     initMotors();
 
@@ -46,10 +54,10 @@ public:
     }
 
     /* ---- ROS 通信 ---- */
-    sub_goal_ = nh_.subscribe("/goal_positions", 10,
+    sub_goal_ = nh_.subscribe(goal_topic_, 10,
                               &XL330PositionOnly::goalCB, this);
     pub_pos_  = nh_.advertise<std_msgs::Int32MultiArray>(
-                    "/present_positions", 10);
+                    pos_topic_, 10);
 
     timer_ = nh_.createTimer(ros::Duration(1.0 / freq_),
                              &XL330PositionOnly::timerCB, this);
@@ -141,6 +149,7 @@ private:
   std::string device_;
   int baud_, motor_cnt_;
   double freq_;
+  std::string goal_topic_, pos_topic_;
 
   dynamixel::PortHandler*  port_;
   dynamixel::PacketHandler* packet_;
