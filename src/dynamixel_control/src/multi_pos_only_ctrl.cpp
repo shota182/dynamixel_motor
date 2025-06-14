@@ -42,11 +42,9 @@ public:
     initMotors();
 
     /* ---- SyncWrite / SyncRead ---- */
-    sw_goal_ = new dynamixel::GroupSyncWrite(
-        port_, packet_, ADDR_GOAL_POSITION, LEN_GOAL_POSITION);
+    sw_goal_ = new dynamixel::GroupSyncWrite(port_, packet_, ADDR_GOAL_POSITION, LEN_GOAL_POSITION);
 
-    sr_pos_ = new dynamixel::GroupSyncRead(
-        port_, packet_, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION);
+    sr_pos_ = new dynamixel::GroupSyncRead(port_, packet_, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION);
 
     for (int id = 1; id <= motor_cnt_; ++id)
     {
@@ -54,13 +52,9 @@ public:
     }
 
     /* ---- ROS 通信 ---- */
-    sub_goal_ = nh_.subscribe(goal_topic_, 10,
-                              &XL330PositionOnly::goalCB, this);
-    pub_pos_  = nh_.advertise<std_msgs::Int32MultiArray>(
-                    pos_topic_, 10);
-
-    timer_ = nh_.createTimer(ros::Duration(1.0 / freq_),
-                             &XL330PositionOnly::timerCB, this);
+    sub_goal_ = nh_.subscribe(goal_topic_, 10, &XL330PositionOnly::goalCB, this);
+    pub_pos_  = nh_.advertise<std_msgs::Int32MultiArray>(pos_topic_, 10);
+    timer_ = nh_.createTimer(ros::Duration(1.0 / freq_), &XL330PositionOnly::timerCB, this);
 
     ROS_INFO("XL330 position-only ready (motors=%d, %.0f Hz)", motor_cnt_, freq_);
   }
@@ -79,10 +73,8 @@ private:
     for (int id = 1; id <= motor_cnt_; ++id)
     {
       uint8_t err = 0;
-      packet_->write1ByteTxRx(port_, id, ADDR_OPERATING_MODE,
-                              MODE_EXTENDED_POSITION_CONTROL, &err);
-      packet_->write1ByteTxRx(port_, id, ADDR_TORQUE_ENABLE,
-                              TORQUE_ENABLE, &err);
+      packet_->write1ByteTxRx(port_, id, ADDR_OPERATING_MODE, MODE_EXTENDED_POSITION_CONTROL, &err);
+      packet_->write1ByteTxRx(port_, id, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &err);
       if (err) ROS_WARN("Init error ID %d (err=%d)", id, err);
     }
   }
@@ -97,8 +89,7 @@ private:
   {
     if (msg->data.size() != static_cast<size_t>(motor_cnt_))
     {
-      ROS_WARN_THROTTLE(1.0,
-        "goal len %zu != motor_count %d → ignore", msg->data.size(), motor_cnt_);
+      ROS_WARN_THROTTLE(1.0, "goal len %zu != motor_count %d → ignore", msg->data.size(), motor_cnt_);
       return;
     }
     sw_goal_->clearParam();
@@ -133,8 +124,7 @@ private:
       int id = i + 1;
 
       // ---- position (4 byte) ----
-      int32_t raw_pos = static_cast<int32_t>(
-        sr_pos_->getData(id, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION));
+      int32_t raw_pos = static_cast<int32_t>(sr_pos_->getData(id, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION));
       pos_msg.data[i] = raw_pos;                 // 0‑4095
     }
     pub_pos_.publish(pos_msg);

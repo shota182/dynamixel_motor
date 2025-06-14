@@ -158,7 +158,7 @@ roslaunch joy_to_dynamixel joy_to_extended_position.launch
 
 ---
 
-## ```calibration```
+## ```calibration``` 
 
 キャリブレーション用パッケージ
 
@@ -180,6 +180,14 @@ csvに```stepangle_vs_springdist_```から始まるcsvファイルが保存さ�
 * ```roslaunch calibration mag_calibration.launch```
 ステップ角を走査して，磁気センサ値と張力の関係を```spring_vs_mag_```から始まるcsvに保存する．
 これで磁気センサ値と張力の関係が求まる．
+
+* ```python3 /home/sskr3/acm_ws/src/calibration/scripts/plot_magdata.py dir```
+```dir```にディレクトリを指定して実行．
+複数のプロットの平均値を取ったプロットを保存する．
+
+* ```python3 /home/sskr3/acm_ws/src/calibration/scripts/fit_plot.py csv_path```
+きれいな単調増加プロットにする．
+
 
 ---
 

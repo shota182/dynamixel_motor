@@ -24,6 +24,9 @@ target_link_libraries(bilateral_2d_node ${catkin_LIBRARIES})
 add_executable(bilateral_2d_force_node src/bilateral_2d_force_node.cpp)
 target_link_libraries(bilateral_2d_force_node ${catkin_LIBRARIES})
 
+add_executable(bilateral_4d_force_node src/bilateral_4d_force_node.cpp)
+target_link_libraries(bilateral_4d_force_node ${catkin_LIBRARIES})
+
 add_executable(mag_tension_converter src/mag_tension_converter.cpp)
 target_link_libraries(mag_tension_converter ${catkin_LIBRARIES})
 

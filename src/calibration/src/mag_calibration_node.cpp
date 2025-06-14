@@ -11,20 +11,21 @@
 class MagCalibrationNode {
 public:
   MagCalibrationNode() : nh_("~"), initialized_mag_(false), initialized_motor_(false) {
+    // パラメータを取得
+    nh_.getParam("csv_path", csv_path_);
+    nh_.getParam("mag_avg_count", mag_avg_count_);
+    nh_.getParam("mag_save_index", mag_save_index_);
+    nh_.getParam("motor_inverse", motor_inverse_);
+    nh_.getParam("save_dir", save_dir_);
+
     sub_mag_ = nh_.subscribe("/sensor/mag", 1, &MagCalibrationNode::magCallback, this);
     sub_pos_ = nh_.subscribe("/sensor/motor/output/position", 1, &MagCalibrationNode::positionCallback, this);
     pub_cmd_ = nh_.advertise<std_msgs::Int32MultiArray>("/sensor/motor/input/position", 10);
-
-    nh_.param<std::string>("csv_path", csv_path_, "");
-    nh_.param<int>("mag_avg_count", mag_avg_count_, 10);
-    nh_.param<int>("mag_save_index", mag_save_index_, 0);
-    nh_.param<bool>("motor_inverse", motor_inverse_, true);
-    nh_.param<std::string>("save_dir", save_dir_, ".");
   }
 
   void spin() {
-    if (!nh_.getParam("csv_path", csv_path_)) {
-      ROS_ERROR("csv_path parameter not found");
+    if (csv_path_.empty()) {
+      ROS_ERROR("csv_path parameter is empty");
       return;
     }
 
@@ -53,13 +54,12 @@ public:
     }
     ROS_INFO_STREAM("Saving CSV to: " << save_path);
 
-
-    writeCSVHeader(ofs);  // ここを追加
+    writeCSVHeader(ofs);
 
     for (int step = motor_step_min_; step <= motor_step_max_; ++step) {
       std_msgs::Int32MultiArray cmd;
       cmd.data.resize(latest_motor_.data.size(), 0);
-      if(motor_inverse_) {
+      if (motor_inverse_) {
         cmd.data[0] = initial_motor_.data[0] - step;  // 逆方向に動かす
       } else {
         cmd.data[0] = initial_motor_.data[0] + step;  // 正方向に動かす
@@ -70,15 +70,13 @@ public:
       ros::Duration(1.0).sleep();  // 必要に応じて調整
 
       double spring_disp = interpolate(static_cast<double>(step));
-      writeCSVRow(ofs, step, spring_disp);  // ここを追加
+      writeCSVRow(ofs, step, spring_disp);
 
       ROS_INFO_STREAM("Step: " << cmd.data[0] << ", SpringDisp: " << spring_disp << ", mag: " << latest_mag_.data[mag_save_index_]);
     }
 
     ofs.close();
   }
-
-
 
 private:
   ros::NodeHandle nh_;
@@ -89,7 +87,7 @@ private:
   std::string csv_path_;
   std::vector<double> csv_motor_steps_;
   std::vector<double> csv_spring_disp_;
-  std::vector<double> csv_tension_;  // 新たに追加
+  std::vector<double> csv_tension_;
   int motor_step_min_;
   int motor_step_max_;
 
@@ -120,7 +118,7 @@ private:
     int count = 0;
     while (std::getline(file, line)) {
       std::stringstream ss(line);
-      std::string step_str, disp_str, tension_str;  // ← この行を追加
+      std::string step_str, disp_str, tension_str;
       std::getline(ss, step_str, ',');
       std::getline(ss, disp_str, ',');
       std::getline(ss, tension_str, ',');
@@ -132,7 +130,7 @@ private:
 
       csv_motor_steps_.push_back(std::stod(step_str));
       csv_spring_disp_.push_back(std::stod(disp_str));
-      csv_tension_.push_back(std::stod(tension_str));  // tension追加
+      csv_tension_.push_back(std::stod(tension_str));
 
       if (!csv_motor_steps_.empty()) {
         auto minmax = std::minmax_element(csv_motor_steps_.begin(), csv_motor_steps_.end());
@@ -291,7 +289,6 @@ private:
     ROS_WARN_STREAM("Step " << step << " outside tension range.");
     return 0.0;
   }
-
 };
 
 int main(int argc, char** argv) {

@@ -206,12 +206,12 @@ class StepAngle2SpringDist:
 if __name__ == "__main__":
     # param motor
     step_1lap = 4096  # モータの1回転あたりのステップ数 (step)
-    motor_id = 4
+    motor_id =  6
     # param dynamics
-    length_fixedend2springpulley_initial = 82              # l_1' (mm)
+    length_fixedend2springpulley_initial = 93              # l_1' (mm)
     length_springpulley2motor_initial = 57                # l_2' (mm)
-    theta_wire_springpulley2motor_initial = 5             # theta_i' (deg)
-    theta_wire_fixedend2springpulley_initial = 7          # theta_o' (deg)
+    theta_wire_springpulley2motor_initial = 5              # theta_i' (deg)
+    theta_wire_fixedend2springpulley_initial = 10          # theta_o' (deg)
     distance_fixedend2springpulley_holizontal = 0         # d_1 (mm)
     distance_springpulley2motor_holizontal = 0           # d_2 (mm)
     radius_springpulley = 3                              # r_s (mm)
