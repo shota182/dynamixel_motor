@@ -17,6 +17,7 @@ public:
     nh_.getParam("Kp", Kp_);
     nh_.getParam("Ki", Ki_);
     nh_.getParam("Kd", Kd_);
+    nh_.getParam("Ksm", Ksm_);
     nh_.getParam("index_master_1", index_master_1_);
     nh_.getParam("index_master_2", index_master_2_);
     nh_.getParam("index_slave_1", index_slave_1_);
@@ -29,8 +30,7 @@ public:
 
     initialized_position_ = false;
     initialized_tension_ = false;
-    initialized_position_second_ = false;
-    initialized_tension_second_ = false;
+    initialized_second_ = false;
 
     control_interval_ = 1.0 / control_loop_freq_; // 制御周期を計算
 
@@ -49,10 +49,6 @@ private:
     if (!initialized_position_) {
       initial_position_ = *msg;
       initialized_position_ = true;
-    } else if (initialized_tension_second_ && !initialized_position_second_) {
-      initial_position_ = *msg;
-      input_position_ = *msg;
-      initialized_position_second_ = true;
     }
   }
 
@@ -93,55 +89,12 @@ private:
     }
     if (!(initialized_position_ && initialized_tension_)) {
       ROS_WARN_ONCE("Position or tension not initialized. Skipping control loop.");
+      initialized_second_ = true;
       return;
     }
 
     std_msgs::Int32MultiArray cmd;
     cmd.data.resize(latest_position_.data.size());
-    // ROS_INFO_STREAM("Latest position size: " << latest_position_.data.size());
-    // ROS_INFO_STREAM("Latest tension size: " << latest_tension_.data.size());
-
-    initialized_tension_second_ = true;
-    // if (!initialized_tension_second_) {
-    //   ROS_INFO_STREAM("Initializing tension.");
-
-    //   // マスタ側の張力
-    //   double tension_master_1 = latest_tension_.data[index_master_1_];
-    //   double tension_master_2 = latest_tension_.data[index_master_2_];
-    //   // スレーブ側の張力
-    //   double tension_slave_1 = latest_tension_.data[index_slave_1_];
-    //   double tension_slave_2 = latest_tension_.data[index_slave_2_];
-
-    //   cmd.data[1] = static_cast<int>(motor_inverse_[1] * Kc_ * (1.1 * tension_margin_ - tension_slave_1) + latest_position_.data[1]);
-    //   cmd.data[3] = static_cast<int>(motor_inverse_[3] * Kc_ * (1.1 * tension_margin_ - tension_slave_2) + latest_position_.data[3]);
-
-    //   cmd.data[0] = static_cast<int>(motor_inverse_[0] * Kc_ * (1.1 * tension_slave_2 - tension_master_1) + latest_position_.data[0]);
-    //   cmd.data[2] = static_cast<int>(motor_inverse_[2] * Kc_ * (1.1 * tension_slave_1 - tension_master_2) + latest_position_.data[2]);
-
-    //   pub_cmd_.publish(cmd);
-
-    //   // 精度を設定してログを出力
-    //   if(output_log_){
-    //     ROS_INFO_STREAM(std::fixed << std::setprecision(6)
-    //                     << "master1 tension: " << tension_master_1
-    //                     << ", master2 tension: " << tension_master_2
-    //                     << ", slave1 tension: " << tension_slave_1
-    //                     << ", slave2 tension: " << tension_slave_2);
-    //   }
-    //   if ((tension_master_1 >= tension_margin_) &&
-    //       (tension_master_2 >= tension_margin_) &&
-    //       (tension_slave_1 >= tension_margin_) &&
-    //       (tension_slave_2 >= tension_margin_)) {
-    //     initialized_tension_second_ = true;
-    //     ROS_INFO_ONCE("Initial tension set successfully, proceeding to control loop.");
-    //   }
-    //   return;
-    // }
-
-    if (!initialized_position_second_) {
-      ROS_WARN_ONCE("Position not initialized for second stage. Skipping control loop.");
-      return;
-    }
 
     // マスタ側の位置
     int position_master_1 = motor_inverse_[0] * (latest_position_.data[0] - initial_position_.data[0]);
@@ -159,24 +112,60 @@ private:
     double tension_slave_1 = latest_tension_.data[index_slave_1_];
     double tension_slave_2 = latest_tension_.data[index_slave_2_];
 
-    // スレーブの計算
-    cmd.data[1] = static_cast<int>(motor_inverse_[1] * (Kf_ * (position_master_1 - position_slave_1)) + initial_position_.data[1]);
-    cmd.data[3] = static_cast<int>(motor_inverse_[3] * (Kf_ * (position_master_2 - position_slave_2)) + initial_position_.data[3]);
-    // マスタ1の計算
-    error[0] = (tension_slave_2 + tension_margin_) - tension_master_1;
-    derivative[0] = (tension_master_1 - previous_tension_.data[0]) / control_interval_;
-    integral_error_[0] += error[0] * control_interval_;
-    cmd.data[0] = static_cast<int>(motor_inverse_[0] * (Kp_ * error[0] + Kd_ * derivative[0] + Ki_ * integral_error_[0]) + latest_position_.data[0]);
-    // マスタ2の計算
-    error[1] = (tension_slave_1 + tension_margin_) - tension_master_2;
-    derivative[1] = (tension_master_2 - previous_tension_.data[2]) / control_interval_;
-    integral_error_[1] += error[1] * control_interval_;
-    cmd.data[2] = static_cast<int>(motor_inverse_[2] * (Kp_ * error[1] + Kd_ * derivative[1] + Ki_ * integral_error_[1]) + latest_position_.data[2]);
+    if (!initialized_second_) {
+      ROS_INFO_ONCE("Force Margin setup started.");
+      // マスタ1
+      error[0] = (tension_margin_) - tension_master_1;
+      derivative[0] = (tension_master_1 - previous_tension_.data[0]) / control_interval_;
+      integral_error_[0] += error[0] * control_interval_;
+      // マスタ2
+      error[2] = (tension_margin_) - tension_master_2;
+      derivative[2] = (tension_master_2 - previous_tension_.data[2]) / control_interval_;
+      integral_error_[2] += error[2] * control_interval_;
+      // スレーブ1
+      error[1] = tension_margin_ - tension_slave_1;
+      derivative[1] = (tension_slave_1 - previous_tension_.data[1]) / control_interval_;
+      integral_error_[1] += error[1] * control_interval_;
+      // スレーブ2
+      error[3] = tension_margin_ - tension_slave_2;
+      derivative[3] = (tension_slave_2 - previous_tension_.data[3]) / control_interval_;
+      integral_error_[3] += error[3] * control_interval_;
 
-    // 入力位置の更新
-    // for (size_t i = 0; i < latest_position_.data.size(); ++i) {
-    //   input_position_.data[i] = cmd.data[i];
-    // }
+      // 計算
+      for(size_t i = 0; i < cmd.data.size(); ++i) {
+        cmd.data[i] = static_cast<int>(motor_inverse_[i] * (Kp_ * error[i] + Kd_ * derivative[i] + Ki_ * integral_error_[i]) + latest_position_.data[i]);
+      }
+
+      if(((0.8*tension_margin_ < tension_master_1) && (1.2*tension_margin_ > tension_master_1)) &&
+         ((0.8*tension_margin_ < tension_master_2) && (1.2*tension_margin_ > tension_master_2)) &&
+         ((0.8*tension_margin_ < tension_slave_1) && (1.2*tension_margin_ > tension_slave_1)) &&
+         ((0.8*tension_margin_ < tension_slave_2) && (1.2*tension_margin_ > tension_slave_2))) {
+        error[0] = 0.0;
+        derivative[0] = 0.0;
+        integral_error_[0] = 0.0;
+        error[2] = 0.0;
+        derivative[2] = 0.0;
+        integral_error_[2] = 0.0;
+        initialized_second_ = true;
+        ROS_INFO_STREAM("Force Margin setup completed.");
+      }
+    } else {
+      // マスタ1
+      error[0] = (Ksm_ * tension_slave_2 + tension_margin_) - tension_master_1;
+      derivative[0] = (tension_master_1 - previous_tension_.data[0]) / control_interval_;
+      integral_error_[0] += error[0] * control_interval_;
+      // マスタ2
+      error[2] = (Ksm_ * tension_slave_1 + tension_margin_) - tension_master_2;
+      derivative[2] = (tension_master_2 - previous_tension_.data[2]) / control_interval_;
+      integral_error_[2] += error[2] * control_interval_;
+
+      // スレーブの計算
+      cmd.data[1] = static_cast<int>(motor_inverse_[1] * (Kf_ * (position_master_1)) + initial_position_.data[1]);
+      cmd.data[3] = static_cast<int>(motor_inverse_[3] * (Kf_ * (position_master_2)) + initial_position_.data[3]);
+      // マスタの計算
+      cmd.data[0] = static_cast<int>(motor_inverse_[0] * (Kp_ * error[0] + Kd_ * derivative[0] + Ki_ * integral_error_[0]) + latest_position_.data[0]);
+      cmd.data[2] = static_cast<int>(motor_inverse_[2] * (Kp_ * error[2] + Kd_ * derivative[2] + Ki_ * integral_error_[2]) + latest_position_.data[2]);
+    }
 
     pub_cmd_.publish(cmd);
 
@@ -205,13 +194,13 @@ private:
 
   std::deque<std_msgs::Float64MultiArray> tension_buffer_;
 
-  bool initialized_position_, initialized_tension_, initialized_position_second_, initialized_tension_second_;
+  bool initialized_position_, initialized_tension_, initialized_second_;
   int tension_threshold_;
   int pull_value_gain_;
-  double Kf_, Kp_, Ki_, Kd_;
-  double error[2] = {0.0, 0.0}; // エラー項を保持する配列
-  double derivative[2] = {0.0, 0.0}; // 微分項を保持する配列
-  double integral_error_[2] = {0.0, 0.0}; // 積分項を保持する配列
+  double Kf_, Kp_, Ki_, Kd_, Ksm_;
+  double error[4] = {0.0, 0.0, 0.0, 0.0}; // エラー項を保持する配列
+  double derivative[4] = {0.0, 0.0, 0.0, 0.0}; // 微分項を保持する配列
+  double integral_error_[4] = {0.0, 0.0, 0.0, 0.0}; // 積分項を保持する配列
   double control_interval_;
   int index_master_1_, index_master_2_, index_slave_1_, index_slave_2_;
   int T_max_1_, T_max_2_;

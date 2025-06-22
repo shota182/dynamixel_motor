@@ -51,7 +51,7 @@ zero_point_calibration_node:
   repeat: 3
   pull_step_max: 32
   dist_threshold: 4
-  # mag_target_indices: [0, 5, 3, 6]
+  # mag_target_indices: [0, 1, 2, 3]
   # motor_direction: [-1, -1, 1, 1]
   mag_target_indices: [0, 1, 2, 3, 5, 4, 7, 6]
   motor_direction: [-1, -1, 1, 1, -1, -1, 1, 1]
@@ -59,16 +59,16 @@ zero_point_calibration_node:
 mag_tension_converter:
   freq: 2000
   # csv_paths_sm:
-  #   - /home/sskr3/acm_ws/src/calibration/csv/1_merged_mean_mag2_monotonic_fit.csv
-  #   - /home/sskr3/acm_ws/src/calibration/csv/6_merged_mean_mag2_monotonic_fit.csv
-  #   - /home/sskr3/acm_ws/src/calibration/csv/4_merged_mean_mag2_monotonic_fit.csv
-  #   - /home/sskr3/acm_ws/src/calibration/csv/7_merged_mean_mag2_monotonic_fit.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/2_merged_mean_mag2_monotonic_fit.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/5_merged_mean_mag2_monotonic_fit.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/3_merged_mean_mag2_monotonic_fit.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/8_merged_mean_mag2_monotonic_fit.csv
 
   # csv_paths_st:
-  #   - /home/sskr3/acm_ws/src/calibration/csv/1_stepangle_vs_springdist_20250601_002155.csv
-  #   - /home/sskr3/acm_ws/src/calibration/csv/6_stepangle_vs_springdist_20250614_192346.csv
-  #   - /home/sskr3/acm_ws/src/calibration/csv/4_stepangle_vs_springdist_20250601_145703.csv
-  #   - /home/sskr3/acm_ws/src/calibration/csv/7_stepangle_vs_springdist_20250614_183521.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/2_stepangle_vs_springdist_20250601_134556.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/5_stepangle_vs_springdist_20250614_145058.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/3_stepangle_vs_springdist_20250601_002336.csv
+  #   - /home/sskr3/acm_ws/src/calibration/csv/8_stepangle_vs_springdist_20250614_173748.csv
   # theta_i:
   #   - 5
   #   - 5
@@ -76,7 +76,7 @@ mag_tension_converter:
   #   - 5
   # theta_o:
   #   - 5
-  #   - 10
+  #   - 5
   #   - 5
   #   - 5
   csv_paths_sm:
@@ -121,9 +121,10 @@ bilateral_2d_force_node:
   tension_threshold: 0
   pull_value_gain: 50
   Kf: 1.0
-  Kp: 25.0
-  Ki: 125.0
+  Kp: 15.0
+  Ki: 75.0
   Kd: 10.0
+  Ksm: 0.5
   index_master_1: 0
   index_master_2: 2
   index_slave_1: 1
@@ -141,6 +142,7 @@ bilateral_4d_force_node:
   Kp: 15.0
   Ki: 75.0
   Kd: 10.0
+  Ksm: 0.25
   index_master_1: 0
   index_master_2: 1
   index_master_3: 2
