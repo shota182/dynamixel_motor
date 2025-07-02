@@ -114,7 +114,7 @@ mag_tension_converter:
     - 5
     - 5
     - 10
-    - 5
+    - 10
     - 5
 
 bilateral_2d_force_node:

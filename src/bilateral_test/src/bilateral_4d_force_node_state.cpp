@@ -1,5 +1,4 @@
 // marginとslave tensionのmaxをとる
-// PID項をpublishする
 
 // bilateral_test_node.cpp (4-motor version)
 #include <ros/ros.h>
@@ -44,9 +43,6 @@ public:
     sub_pos_ = nh_.subscribe("/sensor/motor/output/position", 1, &BilateralTestNode::positionCallback, this);
     sub_mag_ = nh_.subscribe("/force/input/tension", 1, &BilateralTestNode::tensionCallback, this);
     pub_cmd_ = nh_.advertise<std_msgs::Int32MultiArray>("/sensor/motor/input/position", 10);
-    pub_error_ = nh_.advertise<std_msgs::Float64MultiArray>("/bilateral/error", 10);
-    pub_derivative_ = nh_.advertise<std_msgs::Float64MultiArray>("/bilateral/derivative", 10);
-    pub_integral_ = nh_.advertise<std_msgs::Float64MultiArray>("/bilateral/integral", 10);
     timer_ = nh_.createTimer(ros::Duration(1/control_loop_freq_), &BilateralTestNode::controlLoop, this);
 
     ROS_INFO("BilateralTestNode initialized with control loop interval: %.5f seconds", 1/control_loop_freq_);
@@ -170,18 +166,6 @@ private:
 
     pub_cmd_.publish(cmd);
 
-    std_msgs::Float64MultiArray error_msg;
-    error_msg.data = std::vector<double>(error, error + 4);
-    pub_error_.publish(error_msg);
-
-    std_msgs::Float64MultiArray derivative_msg;
-    derivative_msg.data = std::vector<double>(derivative, derivative + 4);
-    pub_derivative_.publish(derivative_msg);
-
-    std_msgs::Float64MultiArray integral_msg;
-    integral_msg.data = std::vector<double>(integral_error_, integral_error_ + 4);
-    pub_integral_.publish(integral_msg);
-
     // log
     if(output_log_){
       ROS_INFO_STREAM("Position master 1: " << position_master_1 << ", Position master 2: " << position_master_2 << ", Position master 3: " << position_master_3 << ", Position master 4: " << position_master_4);
@@ -201,7 +185,7 @@ private:
 
   ros::NodeHandle nh_;
   ros::Subscriber sub_pos_, sub_mag_;
-  ros::Publisher pub_cmd_, pub_error_, pub_derivative_, pub_integral_;
+  ros::Publisher pub_cmd_;
   ros::Timer timer_;
 
   std_msgs::Int32MultiArray initial_position_;

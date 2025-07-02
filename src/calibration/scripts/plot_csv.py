@@ -42,7 +42,7 @@ def adjust_and_plot(csv1):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python3 plot_double.py <csv1> <csv2>")
+        print("Usage: python3 plot_double.py <csv1>")
         sys.exit(1)
 
     csv1 = sys.argv[1]
