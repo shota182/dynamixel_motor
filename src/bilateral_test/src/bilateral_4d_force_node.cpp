@@ -139,16 +139,16 @@ private:
     // 張力を比較して低い方をmarginに
     if(tension_master_1 < tension_master_4) {
       target_tension_master_1_ = tension_margin_;
-      target_tension_master_4_ = tension_slave_2;
+      target_tension_master_4_ = tension_slave_1;
     } else {
-      target_tension_master_1_ = tension_slave_3;
+      target_tension_master_1_ = tension_slave_4;
       target_tension_master_4_ = tension_margin_;
     }
     if(tension_master_2 < tension_master_3) {
       target_tension_master_2_ = tension_margin_;
-      target_tension_master_3_ = tension_slave_1;
+      target_tension_master_3_ = tension_slave_2;
     } else {
-      target_tension_master_2_ = tension_slave_4;
+      target_tension_master_2_ = tension_slave_3;
       target_tension_master_3_ = tension_margin_;
     }
 
