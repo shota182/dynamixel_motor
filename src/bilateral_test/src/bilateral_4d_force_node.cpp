@@ -1,4 +1,5 @@
-// marginとslave tensionのmaxをとる
+// masterは低い方をmarginに
+// slaveは拮抗部分からの相対
 // PID項をpublishする
 
 // bilateral_test_node.cpp (4-motor version)
@@ -87,8 +88,6 @@ private:
           }
           initial_tension_.data[i] = sum / avg_count_ + tension_threshold_;
         }
-        T_max_1_ = tension_margin_ + initial_tension_.data[index_master_1_];
-        T_max_2_ = tension_margin_ + initial_tension_.data[index_master_2_];
         initialized_tension_ = true;
         ROS_INFO_STREAM("Initial tension averaged over " << avg_count_ << " samples.");
       }
@@ -137,31 +136,53 @@ private:
     double tension_slave_3 = latest_tension_.data[index_slave_3_];
     double tension_slave_4 = latest_tension_.data[index_slave_4_];
 
-    // スレーブの計算
-    cmd.data[index_slave_1_] = static_cast<int>(motor_inverse_[index_slave_1_] * (Kf_ * (position_master_1)) + initial_position_.data[index_slave_1_]);
-    cmd.data[index_slave_2_] = static_cast<int>(motor_inverse_[index_slave_2_] * (Kf_ * (position_master_2)) + initial_position_.data[index_slave_2_]);
-    cmd.data[index_slave_3_] = static_cast<int>(motor_inverse_[index_slave_3_] * (Kf_ * (position_master_3)) + initial_position_.data[index_slave_3_]);
-    cmd.data[index_slave_4_] = static_cast<int>(motor_inverse_[index_slave_4_] * (Kf_ * (position_master_4)) + initial_position_.data[index_slave_4_]);
+    // 張力を比較して低い方をmarginに
+    if(tension_master_1 < tension_master_4) {
+      target_tension_master_1_ = tension_margin_;
+      target_tension_master_4_ = tension_slave_2;
+    } else {
+      target_tension_master_1_ = tension_slave_3;
+      target_tension_master_4_ = tension_margin_;
+    }
+    if(tension_master_2 < tension_master_3) {
+      target_tension_master_2_ = tension_margin_;
+      target_tension_master_3_ = tension_slave_1;
+    } else {
+      target_tension_master_2_ = tension_slave_4;
+      target_tension_master_3_ = tension_margin_;
+    }
+
     // マスタ1の計算
-    error[0] = std::max(tension_slave_4, tension_margin_) - tension_master_1;
+    error[0] = target_tension_master_1_ - tension_master_1;
     derivative[0] = (tension_master_1 - previous_tension_.data[index_master_1_]) / control_interval_;
     integral_error_[0] += error[0] * control_interval_;
     cmd.data[index_master_1_] = static_cast<int>(motor_inverse_[index_master_1_] * (Kp_ * error[0] + Kd_ * derivative[0] + Ki_ * integral_error_[0]) + latest_position_.data[index_master_1_]);
     // マスタ2の計算
-    error[1] = std::max(tension_slave_3, tension_margin_) - tension_master_2;
+    error[1] = target_tension_master_2_ - tension_master_2;
     derivative[1] = (tension_master_2 - previous_tension_.data[index_master_2_]) / control_interval_;
     integral_error_[1] += error[1] * control_interval_;
     cmd.data[index_master_2_] = static_cast<int>(motor_inverse_[index_master_2_] * (Kp_ * error[1] + Kd_ * derivative[1] + Ki_ * integral_error_[1]) + latest_position_.data[index_master_2_]);
     // マスタ3の計算
-    error[2] = std::max(tension_slave_2, tension_margin_) - tension_master_3;
+    error[2] = target_tension_master_3_ - tension_master_3;
     derivative[2] = (tension_master_3 - previous_tension_.data[index_master_3_]) / control_interval_;
     integral_error_[2] += error[2] * control_interval_;
     cmd.data[index_master_3_] = static_cast<int>(motor_inverse_[index_master_3_] * (Kp_ * error[2] + Kd_ * derivative[2] + Ki_ * integral_error_[2]) + latest_position_.data[index_master_3_]);
     // マスタ4の計算
-    error[3] = std::max(tension_slave_1, tension_margin_) - tension_master_4;
+    error[3] = target_tension_master_4_ - tension_master_4;
     derivative[3] = (tension_master_4 - previous_tension_.data[index_master_4_]) / control_interval_;
     integral_error_[3] += error[3] * control_interval_;
     cmd.data[index_master_4_] = static_cast<int>(motor_inverse_[index_master_4_] * (Kp_ * error[3] + Kd_ * derivative[3] + Ki_ * integral_error_[3]) + latest_position_.data[index_master_4_]);
+
+    // masterのposition拮抗量から計算
+    target_position_slave_1_ = (position_master_1-position_master_4) / 2;
+    target_position_slave_2_ = (position_master_2-position_master_3) / 2;
+    target_position_slave_3_ = (position_master_3-position_master_2) / 2;
+    target_position_slave_4_ = (position_master_4-position_master_1) / 2;
+    // スレーブの計算
+    cmd.data[index_slave_1_] = static_cast<int>(motor_inverse_[index_slave_1_] * (Kf_ * (target_position_slave_1_) + pull_value_gain_) + initial_position_.data[index_slave_1_]);
+    cmd.data[index_slave_2_] = static_cast<int>(motor_inverse_[index_slave_2_] * (Kf_ * (target_position_slave_2_) + pull_value_gain_) + initial_position_.data[index_slave_2_]);
+    cmd.data[index_slave_3_] = static_cast<int>(motor_inverse_[index_slave_3_] * (Kf_ * (target_position_slave_3_) + pull_value_gain_) + initial_position_.data[index_slave_3_]);
+    cmd.data[index_slave_4_] = static_cast<int>(motor_inverse_[index_slave_4_] * (Kf_ * (target_position_slave_4_) + pull_value_gain_) + initial_position_.data[index_slave_4_]);
 
     // 入力位置の更新
     // for (size_t i = 0; i < latest_position_.data.size(); ++i) {
@@ -222,7 +243,8 @@ private:
   double control_interval_;
   int index_master_1_, index_master_2_, index_master_3_, index_master_4_;
   int index_slave_1_, index_slave_2_, index_slave_3_, index_slave_4_;
-  int T_max_1_, T_max_2_;
+  double target_tension_master_1_, target_tension_master_2_, target_tension_master_3_, target_tension_master_4_;
+  int target_position_slave_1_, target_position_slave_2_, target_position_slave_3_, target_position_slave_4_;
   double tension_margin_;
   std::vector<int> motor_inverse_;
   int avg_count_;

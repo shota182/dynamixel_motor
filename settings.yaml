@@ -137,11 +137,11 @@ bilateral_2d_force_node:
 
 bilateral_4d_force_node:
   tension_threshold: 0
-  pull_value_gain: 50
+  pull_value_gain: 0
   Kf: 1.0
-  Kp: 10.0
-  Ki: 10.0
-  Kd: 1.0
+  Kp: 15.0
+  Ki: 0.0
+  Kd: 0.0
   Ksm: 1.0
   index_master_1: 0
   index_master_2: 1
@@ -152,7 +152,7 @@ bilateral_4d_force_node:
   index_slave_3: 7
   index_slave_4: 6
   motor_inverse: [-1, -1, 1, 1, -1, -1, 1, 1]
-  tension_margin: 1.0
+  tension_margin: 2.0
   avg_count: 5
   output_log: false
   control_loop_freq: 500.0
