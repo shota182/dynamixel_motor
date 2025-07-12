@@ -26,6 +26,11 @@ multi_pos_only_ctrl_node:
   baud_rate: 4000000
   motor_count: 8
   freq: 2000
+  kp: 400
+  ki: 0
+  kd: 0
+  profile_acceleration: 800
+  profile_velocity: 1600
   goal_topic: "/sensor/motor/input/position"
   pos_topic: "/sensor/motor/output/position"
 
@@ -37,11 +42,11 @@ feedback_control_node:
   motor_inverse: [-1, -1, 1, 1]
 
 mag_calibration_node:
-  csv_path: "/home/sskr3/acm_ws/src/calibration/csv/6_stepangle_vs_springdist_20250614_192332.csv"
+  csv_path: "/home/sskr3/acm_ws/src/calibration/csv/0_stepangle_vs_springdist_20250708_111726.csv"
   mag_avg_count: 5
-  mag_save_index: 2
-  motor_inverse: true
-  save_dir: "/home/sskr3/acm_ws/src/calibration/csv/motor_6"
+  mag_save_index: 7
+  motor_inverse: false
+  save_dir: "/home/sskr3/acm_ws/src/calibration/csv/motor_0708"
 
 zero_point_calibration_node:
   calibration_samples: 10
@@ -51,6 +56,8 @@ zero_point_calibration_node:
   repeat: 3
   pull_step_max: 32
   dist_threshold: 4
+  # mag_target_indices: [7]
+  # motor_direction: [1]
   # mag_target_indices: [0, 1, 2, 3]
   # motor_direction: [-1, -1, 1, 1]
   mag_target_indices: [0, 1, 2, 3, 5, 4, 7, 6]
@@ -111,7 +118,7 @@ mag_tension_converter:
     - 5
     - 5
     - 5
-    - 5
+    - 10
     - 5
     - 10
     - 10
@@ -119,17 +126,17 @@ mag_tension_converter:
 
 bilateral_2d_force_node:
   tension_threshold: 0
-  pull_value_gain: 50
+  pull_value_gain: 0
   Kf: 1.0
-  Kp: 15.0
-  Ki: 75.0
-  Kd: 10.0
-  Ksm: 0.5
+  Kp: 10.0
+  Ki: 10.0
+  Kd: 0.0
+  Ksm: 1.0
   index_master_1: 0
-  index_master_2: 2
-  index_slave_1: 1
-  index_slave_2: 3
-  motor_inverse: [-1, -1, 1, 1]
+  index_master_2: 3
+  index_slave_1: 5
+  index_slave_2: 6
+  motor_inverse: [-1, -1, 1, 1, -1, -1, 1, 1]
   tension_margin: 2.0
   avg_count: 5
   output_log: false
@@ -140,7 +147,7 @@ bilateral_4d_force_node:
   pull_value_gain: 0
   Kf: 1.0
   Kp: 15.0
-  Ki: 0.0
+  Ki: 20.0
   Kd: 0.0
   Ksm: 1.0
   index_master_1: 0

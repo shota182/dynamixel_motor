@@ -1,0 +1,26 @@
+<launch>
+  <!-- YAMLファイルを読み込む -->
+  <arg name="config_file" default="/home/sskr3/acm_ws/settings.yaml" />
+
+  <!-- パラメータを読み込み -->
+  <rosparam file="$(arg config_file)" command="load" />
+
+  <!-- arduino -->
+  <node pkg="serial_to_mag" type="serial_to_mag_binary_node" name="serial_to_mag_binary_node" output="screen" />
+
+  <!-- dynamixel -->
+  <include file="$(find dynamixel_control)/launch/multi_pos_only_ctrl.launch" />
+
+  <!-- mag tension converter -->
+  <include file="$(find bilateral_test)/launch/mag_tension_converter.launch" />
+
+  <!-- joyノード -->
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen"/>
+
+  <!-- 自作ノード -->
+  <node pkg="joy_to_dynamixel" type="joy_position_control_node" name="joy_position_control_node" output="screen">
+    <param name="axis_index"    value="0"/>   <!-- 左右スティック横方向が 0 なら -->
+    <param name="scale"         value="800.0"/>
+    <param name="control_freq"  value="50.0"/>
+  </node>
+</launch>

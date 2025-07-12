@@ -15,6 +15,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+# joy_position_control
 add_executable(joy_to_extended_position_node
   src/joy_to_extended_position.cpp
 )
@@ -22,6 +23,18 @@ target_link_libraries(joy_to_extended_position_node
   ${catkin_LIBRARIES}
 )
 add_dependencies(joy_to_extended_position_node
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+
+# joy_position_control
+add_executable(joy_position_control_node
+  src/joy_position_control.cpp
+)
+target_link_libraries(joy_position_control_node
+  ${catkin_LIBRARIES}
+)
+add_dependencies(joy_position_control_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
 )

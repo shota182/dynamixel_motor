@@ -69,10 +69,11 @@ public:
       ros::spinOnce();
       ros::Duration(1.0).sleep();  // 必要に応じて調整
 
-      double spring_disp = interpolate(static_cast<double>(step));
-      writeCSVRow(ofs, step, spring_disp);
+      int step_now = abs(latest_motor_.data[0] - initial_motor_.data[0]);
+      double spring_disp = interpolate(static_cast<double>(step_now));
+      writeCSVRow(ofs, step_now, spring_disp);
 
-      ROS_INFO_STREAM("Step: " << cmd.data[0] << ", SpringDisp: " << spring_disp << ", mag: " << latest_mag_.data[mag_save_index_]);
+      ROS_INFO_STREAM("Step: " << step_now << ", SpringDisp: " << spring_disp << ", mag: " << latest_mag_.data[mag_save_index_]);
     }
 
     ofs.close();

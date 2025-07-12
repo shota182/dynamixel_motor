@@ -76,22 +76,42 @@ private:
   void magCallback(const std_msgs::Int32MultiArray::ConstPtr& msg) {
     std::vector<int32_t> selected_data;
     for (int idx : mag_target_indices_) {
-      if (idx >= 0 && idx < static_cast<int>(msg->data.size())) {
-        selected_data.push_back(msg->data[idx]);
-      } else {
-        ROS_WARN("Mag index %d out of range in received message.", idx);
-        selected_data.push_back(0);
-      }
+        if (idx >= 0 && idx < static_cast<int>(msg->data.size())) {
+            selected_data.push_back(msg->data[idx]);
+        } else {
+            ROS_WARN("Mag index %d out of range in received message.", idx);
+            selected_data.push_back(0);
+        }
     }
     if (!initialized_mag_) {
-      addDataToBuffer(mag_buffer_, selected_data, mag_calibration_samples_);
-      if (mag_buffer_.size() >= mag_calibration_samples_) {
-        initial_mag_ = computeMeanAndVariance(mag_buffer_);
-        initialized_mag_ = true;
-        clearBuffer(mag_buffer_);
-      }
+        addDataToBuffer(mag_buffer_, selected_data, mag_calibration_samples_);
+        if (mag_buffer_.size() >= mag_calibration_samples_) {
+            initial_mag_ = computeMeanAndVariance(mag_buffer_);
+            ROS_INFO("Magnetic calibration initialized with %d samples.", mag_calibration_samples_);
+            
+            // initial_mag_ の内容を出力
+            std::string mean_str = "[";
+            for (const auto& val : initial_mag_.mean) {
+                mean_str += std::to_string(val) + ", ";
+            }
+            mean_str.pop_back(); mean_str.pop_back(); // 最後の ", " を削除
+            mean_str += "]";
+
+            std::string variance_str = "[";
+            for (const auto& val : initial_mag_.variance) {
+                variance_str += std::to_string(val) + ", ";
+            }
+            variance_str.pop_back(); variance_str.pop_back(); // 最後の ", " を削除
+            variance_str += "]";
+
+            ROS_INFO("Initial Mag Mean: %s", mean_str.c_str());
+            ROS_INFO("Initial Mag Variance: %s", variance_str.c_str());
+
+            initialized_mag_ = true;
+            clearBuffer(mag_buffer_);
+        }
     } else if (current_state_ == State::NON_PUBLISHING) {
-      addDataToBuffer(mag_buffer_, selected_data, mag_calibration_samples_);
+        addDataToBuffer(mag_buffer_, selected_data, mag_calibration_samples_);
     }
   }
 

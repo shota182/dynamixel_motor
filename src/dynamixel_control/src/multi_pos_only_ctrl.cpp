@@ -14,6 +14,13 @@ constexpr uint8_t  MODE_EXTENDED_POSITION_CONTROL = 4;
 constexpr uint8_t  TORQUE_ENABLE         = 1;
 /* ------------------------------------------------ */
 
+/* ---- 追加する定数 ---- */
+constexpr uint16_t ADDR_POS_D_GAIN = 80;   // 2 byte
+constexpr uint16_t ADDR_POS_I_GAIN = 82;   // 2 byte
+constexpr uint16_t ADDR_POS_P_GAIN = 84;   // 2 byte
+constexpr uint16_t ADDR_PROFILE_ACCELERATION = 108; // 4 byte
+constexpr uint16_t ADDR_PROFILE_VELOCITY = 112;    // 4 byte
+
 class XL330PositionOnly
 {
 public:
@@ -70,18 +77,55 @@ private:
   /* ------------- 初期化 ------------- */
   void initMotors()
   {
+    int kp, ki, kd; // 一時的に int 型を使用
+    nh_.param("kp", kp, 400); // デフォルト値を int 型で指定
+    nh_.param("ki", ki, 0);
+    nh_.param("kd", kd, 0);
+
+    // uint16_t 型にキャストして設定
+    setGains(static_cast<uint16_t>(kp), static_cast<uint16_t>(ki), static_cast<uint16_t>(kd));
+    ROS_INFO("All motors gains set: P=%d, I=%d, D=%d", kp, ki, kd);
+
+    // Profile Acceleration / Velocity をパラメータから取得
+    int profile_acceleration, profile_velocity;
+    nh_.param("profile_acceleration", profile_acceleration, 0); // デフォルト値 0
+    nh_.param("profile_velocity", profile_velocity, 0);         // デフォルト値 0
+
     for (int id = 1; id <= motor_cnt_; ++id)
     {
-      uint8_t err = 0;
-      packet_->write1ByteTxRx(port_, id, ADDR_OPERATING_MODE, MODE_EXTENDED_POSITION_CONTROL, &err);
-      packet_->write1ByteTxRx(port_, id, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &err);
-      if (err) ROS_WARN("Init error ID %d (err=%d)", id, err);
+        uint8_t err = 0;
+
+        // トルクを有効化
+        packet_->write1ByteTxRx(port_, id, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &err);
+        if (err) ROS_WARN("Torque enable error ID %d (err=%d)", id, err);
+
+        // Profile Acceleration を設定
+        packet_->write4ByteTxRx(port_, id, ADDR_PROFILE_ACCELERATION, static_cast<uint32_t>(profile_acceleration), &err);
+        if (err) ROS_WARN("Profile Acceleration set error ID %d (err=%d)", id, err);
+
+        // Profile Velocity を設定
+        packet_->write4ByteTxRx(port_, id, ADDR_PROFILE_VELOCITY, static_cast<uint32_t>(profile_velocity), &err);
+        if (err) ROS_WARN("Profile Velocity set error ID %d (err=%d)", id, err);
     }
+
+    ROS_INFO("Torque enabled and Profile Acceleration/Velocity set for all motors.");
   }
   void disableTorque()
   {
     for (int id = 1; id <= motor_cnt_; ++id)
       packet_->write1ByteTxRx(port_, id, ADDR_TORQUE_ENABLE, 0);
+  }
+
+  void setGains(uint16_t kp, uint16_t ki, uint16_t kd)
+  {
+    for (int id = 1; id <= motor_cnt_; ++id)
+    {
+      uint8_t err = 0;
+      packet_->write2ByteTxRx(port_, id, ADDR_POS_P_GAIN, kp, &err);
+      packet_->write2ByteTxRx(port_, id, ADDR_POS_I_GAIN, ki, &err);
+      packet_->write2ByteTxRx(port_, id, ADDR_POS_D_GAIN, kd, &err);
+      if (err) ROS_WARN("Gain set error ID %d (err=%d)", id, err);
+    }
   }
 
   /* ------ goal_positions callback ------ */
