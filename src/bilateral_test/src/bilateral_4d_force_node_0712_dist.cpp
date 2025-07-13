@@ -1,4 +1,6 @@
-// フォロワ引っ張らない側の張力をmarginに設定
+// masterは低い方をmarginに
+// slaveは拮抗部分からの相対
+// PID項をpublishする
 
 // bilateral_test_node.cpp (4-motor version)
 #include <ros/ros.h>
@@ -171,54 +173,17 @@ private:
     integral_error_[3] += error[3] * control_interval_;
     cmd.data[index_master_4_] = static_cast<int>(motor_inverse_[index_master_4_] * (Kp_ * error[3] + Kd_ * derivative[3] + Ki_ * integral_error_[3]) + latest_position_.data[index_master_4_]);
 
-    // 引っ張り量の比較 1-4
-    if(position_master_1 < position_master_4) {
-      // PID項の計算
-      error[4] = tension_margin_ - tension_slave_1;
-      derivative[4] = (tension_slave_1 - previous_tension_.data[index_slave_1_]) / control_interval_;
-      integral_error_[4] += error[4] * control_interval_;
-      error[7] = 0.0;
-      derivative[7] = 0.0;
-      integral_error_[7] = 0.0;
-      // スレーブの計算
-      cmd.data[index_slave_1_] = static_cast<int>(motor_inverse_[index_slave_1_] * (Kp_ * error[4] + Kd_ * derivative[4] + Ki_ * integral_error_[4]) + latest_position_.data[index_slave_1_]);
-      cmd.data[index_slave_4_] = static_cast<int>(motor_inverse_[index_slave_4_] * (Kf_ * (position_master_4) + pull_value_gain_) + initial_position_.data[index_slave_4_]);
-    } else {
-      // PID項の計算
-      error[7] = tension_margin_ - tension_slave_4;
-      derivative[7] = (tension_slave_4 - previous_tension_.data[index_slave_4_]) / control_interval_;
-      integral_error_[7] += error[7] * control_interval_;
-      error[4] = 0.0;
-      derivative[4] = 0.0;
-      integral_error_[4] = 0.0;
-      // スレーブの計算
-      cmd.data[index_slave_4_] = static_cast<int>(motor_inverse_[index_slave_4_] * (Kp_ * error[7] + Kd_ * derivative[7] + Ki_ * integral_error_[7]) + latest_position_.data[index_slave_4_]);
-      cmd.data[index_slave_1_] = static_cast<int>(motor_inverse_[index_slave_1_] * (Kf_ * (position_master_1) + pull_value_gain_) + initial_position_.data[index_slave_1_]);
-    }
-    // 引っ張り量の比較 2-3
-    if(position_master_2 < position_master_3) {
-      // PID項の計算
-      error[5] = tension_margin_ - tension_slave_2;
-      derivative[5] = (tension_slave_2 - previous_tension_.data[index_slave_2_]) / control_interval_;
-      integral_error_[5] += error[5] * control_interval_;
-      error[6] = 0.0;
-      derivative[6] = 0.0;
-      integral_error_[6] = 0.0;
-      // スレーブの計算
-      cmd.data[index_slave_2_] = static_cast<int>(motor_inverse_[index_slave_2_] * (Kp_ * error[5] + Kd_ * derivative[5] + Ki_ * integral_error_[5]) + latest_position_.data[index_slave_2_]);
-      cmd.data[index_slave_3_] = static_cast<int>(motor_inverse_[index_slave_3_] * (Kf_ * (position_master_3) + pull_value_gain_) + initial_position_.data[index_slave_3_]);
-    } else {
-      // PID項の計算
-      error[6] = tension_margin_ - tension_slave_3;
-      derivative[6] = (tension_slave_3 - previous_tension_.data[index_slave_3_]) / control_interval_;
-      integral_error_[6] += error[6] * control_interval_;
-      error[5] = 0.0;
-      derivative[5] = 0.0;
-      integral_error_[5] = 0.0;
-      // スレーブの計算
-      cmd.data[index_slave_3_] = static_cast<int>(motor_inverse_[index_slave_3_] * (Kp_ * error[6] + Kd_ * derivative[6] + Ki_ * integral_error_[6]) + latest_position_.data[index_slave_3_]);
-      cmd.data[index_slave_2_] = static_cast<int>(motor_inverse_[index_slave_2_] * (Kf_ * (position_master_2) + pull_value_gain_) + initial_position_.data[index_slave_2_]);
-    }
+    // masterのposition拮抗量から計算
+    target_position_slave_1_ = (position_master_1-position_master_4) / 2;
+    target_position_slave_2_ = (position_master_2-position_master_3) / 2;
+    target_position_slave_3_ = (position_master_3-position_master_2) / 2;
+    target_position_slave_4_ = (position_master_4-position_master_1) / 2;
+    // スレーブの計算
+    cmd.data[index_slave_1_] = static_cast<int>(motor_inverse_[index_slave_1_] * (Kf_ * (target_position_slave_1_) + pull_value_gain_) + initial_position_.data[index_slave_1_]);
+    cmd.data[index_slave_2_] = static_cast<int>(motor_inverse_[index_slave_2_] * (Kf_ * (target_position_slave_2_) + pull_value_gain_) + initial_position_.data[index_slave_2_]);
+    cmd.data[index_slave_3_] = static_cast<int>(motor_inverse_[index_slave_3_] * (Kf_ * (target_position_slave_3_) + pull_value_gain_) + initial_position_.data[index_slave_3_]);
+    cmd.data[index_slave_4_] = static_cast<int>(motor_inverse_[index_slave_4_] * (Kf_ * (target_position_slave_4_) + pull_value_gain_) + initial_position_.data[index_slave_4_]);
+
     // 入力位置の更新
     // for (size_t i = 0; i < latest_position_.data.size(); ++i) {
     //   input_position_.data[i] = cmd.data[i];
@@ -272,9 +237,9 @@ private:
   int tension_threshold_;
   int pull_value_gain_;
   double Kf_, Kp_, Ki_, Kd_;
-  double error[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // エラー項を保持する配列
-  double derivative[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // 微分項を保持する配列
-  double integral_error_[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // 積分項を保持する配列
+  double error[4] = {0.0, 0.0, 0.0, 0.0}; // エラー項を保持する配列
+  double derivative[4] = {0.0, 0.0, 0.0, 0.0}; // 微分項を保持する配列
+  double integral_error_[4] = {0.0, 0.0, 0.0, 0.0}; // 積分項を保持する配列
   double control_interval_;
   int index_master_1_, index_master_2_, index_master_3_, index_master_4_;
   int index_slave_1_, index_slave_2_, index_slave_3_, index_slave_4_;

@@ -26,8 +26,8 @@ multi_pos_only_ctrl_node:
   baud_rate: 4000000
   motor_count: 8
   freq: 2000
-  kp: 400
-  ki: 0
+  kp: 1000
+  ki: 100
   kd: 0
   profile_acceleration: 800
   profile_velocity: 1600
@@ -58,8 +58,6 @@ zero_point_calibration_node:
   dist_threshold: 4
   # mag_target_indices: [7]
   # motor_direction: [1]
-  # mag_target_indices: [0, 1, 2, 3]
-  # motor_direction: [-1, -1, 1, 1]
   mag_target_indices: [0, 1, 2, 3, 5, 4, 7, 6]
   motor_direction: [-1, -1, 1, 1, -1, -1, 1, 1]
 
@@ -128,14 +126,14 @@ bilateral_2d_force_node:
   tension_threshold: 0
   pull_value_gain: 0
   Kf: 1.0
-  Kp: 10.0
-  Ki: 10.0
+  Kp: 5.0
+  Ki: 5.0
   Kd: 0.0
   Ksm: 1.0
-  index_master_1: 0
-  index_master_2: 3
-  index_slave_1: 5
-  index_slave_2: 6
+  index_master_1: 1
+  index_master_2: 2
+  index_slave_1: 4
+  index_slave_2: 7
   motor_inverse: [-1, -1, 1, 1, -1, -1, 1, 1]
   tension_margin: 2.0
   avg_count: 5
@@ -146,8 +144,8 @@ bilateral_4d_force_node:
   tension_threshold: 0
   pull_value_gain: 0
   Kf: 1.0
-  Kp: 15.0
-  Ki: 20.0
+  Kp: 5.0
+  Ki: 0.0
   Kd: 0.0
   Ksm: 1.0
   index_master_1: 0
