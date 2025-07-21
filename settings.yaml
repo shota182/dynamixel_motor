@@ -117,10 +117,24 @@ mag_tension_converter:
     - 5
     - 5
     - 10
-    - 5
     - 10
     - 10
+    - 10
     - 5
+
+joy_slave_control_node:
+    axis_index:          0
+    scale:               400.0
+    control_loop_freq:   500.0
+    index_slave_1:       4
+    index_slave_2:       7
+    motor_inverse:       [-1, -1, 1, 1, -1, -1, 1, 1]
+    tension_margin:      2.0
+    Kp:                  5.0
+    Ki:                  5.0
+    Kd:                  0.0
+    avg_count:           5
+
 
 bilateral_2d_force_node:
   tension_threshold: 0
@@ -135,6 +149,7 @@ bilateral_2d_force_node:
   index_slave_1: 4
   index_slave_2: 7
   motor_inverse: [-1, -1, 1, 1, -1, -1, 1, 1]
+  deadzone: 100
   tension_margin: 2.0
   avg_count: 5
   output_log: false

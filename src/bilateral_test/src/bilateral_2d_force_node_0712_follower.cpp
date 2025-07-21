@@ -1,6 +1,5 @@
-// 7/16
+// 7/12
 // フォロワの制御で，引っ張っている方はそのまま，引っ張っていない方はmargin
-// 境界値に不感帯を追加
 #include <ros/ros.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
@@ -26,7 +25,6 @@ public:
     nh_.getParam("index_slave_2", index_slave_2_);
     nh_.getParam("motor_inverse", motor_inverse_);
     nh_.getParam("tension_margin", tension_margin_);
-    nh_.getParam("deadzone", deadzone_);
     nh_.getParam("avg_count", avg_count_);
     nh_.getParam("output_log", output_log_);
     nh_.getParam("control_loop_freq", control_loop_freq_); // 制御周期を取得
@@ -145,8 +143,7 @@ private:
     cmd.data[index_master_2_] = static_cast<int>(motor_inverse_[index_master_2_] * (Kp_ * error[1] + Kd_ * derivative[1] + Ki_ * integral_error_[1]) + latest_position_.data[index_master_2_]);
 
     // 引っ張り量を比較
-    if(position_master_1 < position_master_2 + slave_state_12_*deadzone_) {
-      slave_state_12_ = 1; // ワイヤ2が引っ張っている状態
+    if(position_master_1 < position_master_2) {
       // スレーブ1の計算
       error[2] = tension_margin_ - tension_slave_1;
       derivative[2] = (tension_slave_1 - previous_tension_.data[index_slave_1_]) / control_interval_;
@@ -158,7 +155,6 @@ private:
       cmd.data[index_slave_1_] = static_cast<int>(motor_inverse_[index_slave_1_] * (Kp_ * error[2] + Kd_ * derivative[2] + Ki_ * integral_error_[2]) + latest_position_.data[index_slave_1_]);
       cmd.data[index_slave_2_] = static_cast<int>(motor_inverse_[index_slave_2_] * (Kf_ * (position_master_2) + pull_value_gain_) + initial_position_.data[index_slave_2_]);
     } else {
-      slave_state_12_ = -1; // ワイヤ1が引っ張っている状態
       // スレーブ2の計算
       error[3] = tension_margin_ - tension_slave_2;
       derivative[3] = (tension_slave_2 - previous_tension_.data[index_slave_2_]) / control_interval_;
@@ -166,7 +162,7 @@ private:
       error[2] = 0.0;
       derivative[2] = 0.0;
       integral_error_[2] = 0.0;
-      // スレーブの計算￼
+      // スレーブの計算
       cmd.data[index_slave_2_] = static_cast<int>(motor_inverse_[index_slave_2_] * (Kp_ * error[3] + Kd_ * derivative[3] + Ki_ * integral_error_[3]) + latest_position_.data[index_slave_2_]);
       cmd.data[index_slave_1_] = static_cast<int>(motor_inverse_[index_slave_1_] * (Kf_ * (position_master_1) + pull_value_gain_) + initial_position_.data[index_slave_1_]);
     }
@@ -175,7 +171,6 @@ private:
 
     // log
     if(output_log_) {
-      ROS_INFO_STREAM("slave state: " << slave_state_12_);
       ROS_INFO_STREAM("Position master 1: " << position_master_1 << ", Position master 2: " << position_master_2);
       ROS_INFO_STREAM("Position slave 1: " << position_slave_1 << ", Position slave 2: " << position_slave_2);
       ROS_INFO_STREAM("Tension master 1: " << tension_master_1 << ", Tension master 2: " << tension_master_2);
@@ -211,13 +206,10 @@ private:
   double target_tension_master_1_, target_tension_master_2_;
   double target_slave_1_, target_slave_2_;
   double tension_margin_;
-  int deadzone_; // 不感帯の値
   std::vector<int> motor_inverse_;
   int avg_count_;
   bool output_log_;
   double control_loop_freq_; // 制御周期
-
-  int slave_state_12_ = 0; // position制御を使っているモータ
 };
 
 int main(int argc, char** argv) {
