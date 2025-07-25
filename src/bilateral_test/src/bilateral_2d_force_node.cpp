@@ -127,21 +127,25 @@ private:
     // 張力を比較して低い方をmarginに
     if(tension_master_1 < tension_master_2) {
       target_tension_master_1_ = tension_margin_;
-      target_tension_master_2_ = tension_slave_1;
+      target_tension_master_2_ = Ksm_ * tension_slave_1;
     } else {
-      target_tension_master_1_ = tension_slave_2;
+      target_tension_master_1_ = Ksm_ * tension_slave_2;
       target_tension_master_2_ = tension_margin_;
     }
 
     // マスタ1の計算
     error[0] = target_tension_master_1_ - tension_master_1;
-    derivative[0] = (tension_master_1 - previous_tension_.data[index_master_1_]) / control_interval_;
+    derivative[0] = (error[0] - previous_error[0]) / control_interval_;
+    // derivative[0] = ( - previous_tension_.data[index_master_1_]) / control_interval_;
     integral_error_[0] += error[0] * control_interval_;
+    previous_error[0] = error[0];
     cmd.data[index_master_1_] = static_cast<int>(motor_inverse_[index_master_1_] * (Kp_ * error[0] + Kd_ * derivative[0] + Ki_ * integral_error_[0]) + latest_position_.data[index_master_1_]);
     // マスタ2の計算
     error[1] = target_tension_master_2_ - tension_master_2;
-    derivative[1] = (tension_master_2 - previous_tension_.data[index_master_2_]) / control_interval_;
+    derivative[1] = (error[1] - previous_error[1]) / control_interval_;
+    // derivative[1] = (tension_master_2 - previous_tension_.data[index_master_2_]) / control_interval_;
     integral_error_[1] += error[1] * control_interval_;
+    previous_error[1] = error[1];
     cmd.data[index_master_2_] = static_cast<int>(motor_inverse_[index_master_2_] * (Kp_ * error[1] + Kd_ * derivative[1] + Ki_ * integral_error_[1]) + latest_position_.data[index_master_2_]);
 
     // 引っ張り量を比較
@@ -149,8 +153,10 @@ private:
       slave_state_12_ = 1; // ワイヤ2が引っ張っている状態
       // スレーブ1の計算
       error[2] = tension_margin_ - tension_slave_1;
-      derivative[2] = (tension_slave_1 - previous_tension_.data[index_slave_1_]) / control_interval_;
+      derivative[2] = (error[2] - previous_error[2]) / control_interval_;
+      // derivative[2] = (tension_slave_1 - previous_tension_.data[index_slave_1_]) / control_interval_;
       integral_error_[2] += error[2] * control_interval_;
+      previous_error[2] = error[2];
       error[3] = 0.0;
       derivative[3] = 0.0;
       integral_error_[3] = 0.0;
@@ -161,8 +167,10 @@ private:
       slave_state_12_ = -1; // ワイヤ1が引っ張っている状態
       // スレーブ2の計算
       error[3] = tension_margin_ - tension_slave_2;
-      derivative[3] = (tension_slave_2 - previous_tension_.data[index_slave_2_]) / control_interval_;
+      derivative[3] = (error[3] - previous_error[3]) / control_interval_;
+      // derivative[3] = (tension_slave_2 - previous_tension_.data[index_slave_2_]) / control_interval_;
       integral_error_[3] += error[3] * control_interval_;
+      previous_error[3] = error[3];
       error[2] = 0.0;
       derivative[2] = 0.0;
       integral_error_[2] = 0.0;
@@ -204,6 +212,7 @@ private:
   int pull_value_gain_;
   double Kf_, Kp_, Ki_, Kd_, Ksm_;
   double error[4] = {0.0, 0.0, 0.0, 0.0}; // エラー項を保持する配列
+  double previous_error[4] = {0.0, 0.0, 0.0, 0.0}; // エラー項を保持する配列
   double derivative[4] = {0.0, 0.0, 0.0, 0.0}; // 微分項を保持する配列
   double integral_error_[4] = {0.0, 0.0, 0.0, 0.0}; // 積分項を保持する配列
   double control_interval_;

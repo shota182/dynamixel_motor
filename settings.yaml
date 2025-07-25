@@ -41,6 +41,13 @@ feedback_control_node:
   publish_index: 0
   motor_inverse: [-1, -1, 1, 1]
 
+joy_position_control_single_node:
+  motor_id: 4
+  axis_index: 1
+  scale: 1000.0
+  control_freq: 500.0
+  motor_sign: -1
+
 mag_calibration_node:
   csv_path: "/home/sskr3/acm_ws/src/calibration/csv/0_stepangle_vs_springdist_20250708_111726.csv"
   mag_avg_count: 5
@@ -113,13 +120,13 @@ mag_tension_converter:
     - 5
     - 5
   theta_o:
+    - 10
     - 5
     - 5
+    - 10
+    - 10
     - 5
-    - 10
-    - 10
-    - 10
-    - 10
+    - 5
     - 5
 
 joy_slave_control_node:
@@ -144,10 +151,14 @@ bilateral_2d_force_node:
   Ki: 5.0
   Kd: 0.0
   Ksm: 1.0
-  index_master_1: 1
-  index_master_2: 2
-  index_slave_1: 4
-  index_slave_2: 7
+  # index_master_1: 1
+  # index_master_2: 2
+  # index_slave_1: 4
+  # index_slave_2: 7
+  index_master_1: 4
+  index_master_2: 7
+  index_slave_1: 1
+  index_slave_2: 2
   motor_inverse: [-1, -1, 1, 1, -1, -1, 1, 1]
   deadzone: 100
   tension_margin: 2.0

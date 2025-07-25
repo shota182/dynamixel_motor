@@ -42,7 +42,7 @@ class StepAngle2SpringDist:
         self.distance_springpulley2motor_holizontal = np.sqrt(self.length_springpulley2motor_initial**2 - (self.radius_motor-self.radius_springpulley)**2)*np.cos(self.theta_wire_springpulley2motor_initial) - self.radius_motor*np.sin(self.theta_wire_springpulley2motor_initial)        # [m]
         print(f"d1: {self.distance_fixedend2springpulley_holizontal*1000}")
         print(f"d2: {self.distance_springpulley2motor_holizontal*1000}")
-        self.bool_print = True  # デバッグ用のフラグ
+        self.bool_print = False  # デバッグ用のフラグ
     
     def calculate_stepmotorangle(self):
         # ばねの変位の配列を生成して，モータのステップ角変化を計算してcsvに保存+プロットする

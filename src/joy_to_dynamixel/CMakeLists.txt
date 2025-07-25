@@ -51,6 +51,18 @@ add_dependencies(joy_slave_control_node
   ${catkin_EXPORTED_TARGETS}
 )
 
+# joy_position_control_single_node
+add_executable(joy_position_control_single_node
+  src/joy_position_control_single.cpp
+)
+target_link_libraries(joy_position_control_single_node
+  ${catkin_LIBRARIES}
+)
+add_dependencies(joy_position_control_single_node
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+
 # launchファイルのインストール
 install(DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
