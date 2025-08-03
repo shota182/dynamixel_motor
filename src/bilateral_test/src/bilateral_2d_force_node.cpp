@@ -189,6 +189,10 @@ private:
       ROS_INFO_STREAM("Tension master 1: " << tension_master_1 << ", Tension master 2: " << tension_master_2);
       ROS_INFO_STREAM("Tension slave 1: " << tension_slave_1 << ", Tension slave 2: " << tension_slave_2);
       ROS_INFO_STREAM("Target tension master 1: " << target_tension_master_1_ << ", Target tension master 2: " << target_tension_master_2_);
+      ROS_INFO_STREAM("S1 PID data: " << error[2] << ", " << derivative[2] << ", " << integral_error_[2]);
+      ROS_INFO_STREAM("S2 PID data: " << error[3] << ", " << derivative[3] << ", " << integral_error_[3]);
+      ROS_INFO_STREAM("M1 PID data: " << error[0] << ", " << derivative[0] << ", " << integral_error_[0]);
+      ROS_INFO_STREAM("M2 PID data: " << error[1] << ", " << derivative[1] << ", " << integral_error_[1]);
       ROS_INFO_STREAM("Command master 1: " << cmd.data[index_master_1_] << ", Command master 2: " << cmd.data[index_master_2_]);
       ROS_INFO_STREAM("Command slave 1: " << cmd.data[index_slave_1_] << ", Command slave 2: " << cmd.data[index_slave_2_]);
     }

@@ -35,14 +35,14 @@ y_plot = a * x_plot + b
 # プロット
 plt.figure(figsize=(8, 6))
 plt.scatter(df['mag'].to_numpy()*3.3/1024, df['T'].to_numpy(), label="測定点", s=500, c="k", marker="o")
-plt.plot(x_plot, y_plot, "--", label=f'Fit: T = {a:.2f}$V_H$ -{abs(b):.2f}', color='red', linewidth=5, zorder=0)
+# plt.plot(x_plot, y_plot, "--", label=f'T = {a:.2f}$V_H$ -{abs(b):.2f}', color='red', linewidth=5, zorder=0)
 plt.xlim([0, 3.3])  # x軸の範囲を設定
 plt.ylim([0, 20])  # x軸の範囲を設定
-plt.xlabel('$V_H$ [V]', fontsize=60)
-plt.ylabel('T [N]', fontsize=60)
+plt.xlabel('ホール出力電圧 $V_H$ [V]', fontsize=80)
+plt.ylabel('張力換算値 T [N]', fontsize=80)
 plt.tick_params(axis='y', pad=20)   # デフォルトは 4 pt 程度
 plt.tick_params(axis='x', pad=20)   # 必要なら x 側も微調整
-plt.legend(fontsize=60)
+# plt.legend(fontsize=80)
 # plt.title('T vs mag_fit')
 plt.grid(True)
 # plt.tight_layout()
